@@ -26,7 +26,7 @@ function ClientList() {
                 });
                 
                 const clientData = response.data.data.map(client => ({
-                    id: client.user.id,
+                    id: client.id,
                     name: client.user.name,
                     image: client.user.file_path
                 }));

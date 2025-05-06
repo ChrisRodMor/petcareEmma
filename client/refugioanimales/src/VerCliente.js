@@ -61,7 +61,7 @@ function VerCliente() {
                             <p className="h3">Descripcion detallada</p>
 
                             <div className='mb-5'>
-                                <p className='lead'>ID: {client.id}</p>
+                                <p className='lead'>ID: {id}</p>
                                 <p className='lead'>Nombre: {client.name}</p>
                                 <p className='lead'>Email: {client.email}</p>
                                 <p className='lead'>Teléfono: {client.phone}</p>
