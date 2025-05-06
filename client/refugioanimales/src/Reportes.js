@@ -67,10 +67,11 @@ function Reportes() {
           </div>
 
           <div className="ms-4 d-flex align-items-center mx-auto flex-column flex-md-row">
-            <span className="badge mb-2 mb-md-0" style={{ backgroundColor: '#f1c40f', color: 'black' }}>Revisando</span>
-            <span className="badge mb-2 mb-md-0 ms-md-2" style={{ backgroundColor: '#1abc9c', color: 'white' }}>Avanzando</span>
-            <span className="badge ms-md-2" style={{ backgroundColor: '#27ae60', color: 'white' }}>Terminado</span>
+            <span className="badge bg-warning text-dark mb-2 mb-md-0">Revisando</span>
+            <span className="badge bg-info text-white mb-2 mb-md-0 ms-md-2">Avanzando</span>
+            <span className="badge bg-success text-white ms-md-2">Terminado</span>
           </div>
+
 
           <div className='d-flex justify-content-end align-items-center w-100'>
             <Link to={rutaBoton}>

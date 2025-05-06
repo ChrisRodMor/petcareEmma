@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import PetCard from './PetCard';
@@ -54,27 +54,35 @@ function PetList() {
         fetchBreeds();
     }, [selectedType]);
 
+    
+
+    const applyFilters = useCallback(() => {
+        let filtered = pets;
+      
+        if (searchName.trim() !== '') {
+          filtered = filtered.filter(pet =>
+            pet.name.toLowerCase().includes(searchName.toLowerCase())
+          );
+        }
+      
+        if (selectedType !== '') {
+          filtered = filtered.filter(pet => pet.type_id === parseInt(selectedType));
+        }
+      
+        if (selectedBreed !== '') {
+          filtered = filtered.filter(pet => pet.breed_id === parseInt(selectedBreed));
+        }
+      
+        setFilteredPets(filtered);
+      }, [pets, searchName, selectedType, selectedBreed]);
+      
+      useEffect(() => {
+        applyFilters();
+    }, [applyFilters]); // esta línea ya no fallará
+      
     useEffect(() => {
         applyFilters();
-    }, [searchName, selectedType, selectedBreed]);
-
-    const applyFilters = () => {
-        let filtered = pets;
-
-        if (searchName.trim() !== '') {
-            filtered = filtered.filter(pet => pet.name.toLowerCase().includes(searchName.toLowerCase()));
-        }
-
-        if (selectedType !== '') {
-            filtered = filtered.filter(pet => pet.type_id === parseInt(selectedType));
-        }
-
-        if (selectedBreed !== '') {
-            filtered = filtered.filter(pet => pet.breed_id === parseInt(selectedBreed));
-        }
-
-        setFilteredPets(filtered);
-    };
+    }, [applyFilters]);  
 
     const handleSearchNameChange = (e) => {
         setSearchName(e.target.value);

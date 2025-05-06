@@ -40,11 +40,7 @@ function ClientList() {
 
         fetchClients();
     }, [authData]);
-
-    useEffect(() => {
-        applyFilters();
-    }, [searchName]);
-
+    
     const applyFilters = () => {
         let filtered = clients;
 
@@ -54,6 +50,10 @@ function ClientList() {
 
         setFilteredClients(filtered);
     };
+
+    useEffect(() => {
+        applyFilters();
+    }, [searchName, applyFilters]);
 
     const handleSearchNameChange = (e) => {
         setSearchName(e.target.value);

@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 import Navbarcliente from './Navbarcliente';
 import Navbaremployee from './Navbaremployee';
-import axios from 'axios';
 import { Container, Form, InputGroup, Button, Modal, Col, Row } from 'react-bootstrap';
 import ClientCardProfile from './ClientCardProfile';
 
