@@ -35,13 +35,13 @@ function Login() {
         headers: {
             'Content-Type': 'application/json',
         },
-        //withCredentials: true // Permite que Axios envíe cookies con las solicitudes
+        withCredentials: true // Permite que Axios envíe cookies con las solicitudes
     });
 
     // Configura la instancia de Axios para la solicitud CSRF
     const csrfAxiosInstance = axios.create({
         baseURL: 'http://127.0.0.1:8000',
-        //withCredentials: true // Permite que Axios envíe cookies con las solicitudes
+        withCredentials: true // Permite que Axios envíe cookies con las solicitudes
     });
 
     const bearer = () => {

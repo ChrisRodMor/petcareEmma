@@ -34,7 +34,6 @@ function Reportes() {
             Accept: 'application/json'
           }
         });
-        
         setReports(response.data.data);
         setLoading(false);
       } catch (error) {
@@ -55,12 +54,12 @@ function Reportes() {
 
   if (authData.type === 'client') {
     pageTitle = 'Mis reportes';
-    rutaBoton = '/nuevoreporte'; // Cambiar por la dirección deseada para clientes
+    rutaBoton = '/nuevoreporte';
   }
 
   return (
     <div>
-      {authData.type === 'employee' ? <Navbaremployee /> : <Navbarcliente />}
+      {authData && authData.type === 'employee' ? <Navbaremployee /> : <Navbarcliente />}
       <Container>
         <div className='mt-5 d-flex flex-column align-items-center'>
           <div className='d-flex justify-content-center'>
