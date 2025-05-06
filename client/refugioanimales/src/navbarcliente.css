@@ -1,0 +1,5 @@
+.navbar-nav > li > .nav-link.nav-link { color: grey; }
+
+.navbar-nav > li > .nav-link.nav-link:hover { color:  #FFC107; }
+
+.navbar-nav > li > .nav-link.nav-link:focus { color:  #FFC107; }

@@ -1,0 +1,26 @@
+.fondo{
+    background-image: url(img/fondologinregistro.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.register-form {
+    text-align: left;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 600px; /* Ajusta el ancho a tu preferencia */
+
+}
+
+.register-form img {
+    max-width: 100%;
+    height: auto;
+}
+
+.register-form .text-center img {
+    width: 50px;
+    margin-bottom: 10px;
+}
