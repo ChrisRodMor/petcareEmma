@@ -62,12 +62,12 @@ class StoreAnimalRequest extends FormRequest
             'exists' => 'El :attribute seleccionado no existe.',
             'unique' => 'Ya existe un registro con ese :attribute.',
             'required' => 'El campo :attribute es requerido.',
-            'numeric' => 'El campo :attribute debe ser numerico.',
+            'numeric' => 'El campo :attribute debe ser numérico.',
             'max' => 'El campo :attribute debe contener maximo :max caracteres.',
             'min'=>'El campo :attribute debe ser de minimo :min kilos.',
             'digits' => 'El campo :attribute debe de ser a :digits digitos.',
             'in' => 'El campo :attribute debe contener un dato válido: :values.',
-            'string'=> 'El campo :attribute deben ser caracteres',
+            'string'=> 'El campo :attribute debe ser una cadena de texto.',
             'date' => 'El campo :attribute debe ser una fecha valida.',
         ];
     }

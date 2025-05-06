@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\LostPetReport;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreLostPetReportRequest;
+use App\Http\Requests\UpdateLostPetReportStatusRequest;
+
 
 class LostPetReportController extends Controller
 {
@@ -32,21 +35,9 @@ class LostPetReportController extends Controller
      */
 
 
-    public function store(Request $request)
+    public function store(StoreLostPetReportRequest  $request)
     {
-        // Validar los datos del request
-        $request->validate([
-            'description' => 'required|string',
-            'type_id' => 'required|exists:types,id',
-            'breed_id' => 'required|exists:breeds,id',
-            'date_event' => 'required|date',
-            'pet_name' => 'required|string',
-            'pet_gender' => 'required|in:Macho,Hembra',
-            'pet_color' => 'required|string',
-            'animal_picture'=> 'required|file'
-
-        ]);
-
+       
         // Obtener el usuario autenticado
         $user = auth()->user();
 
@@ -71,11 +62,6 @@ class LostPetReportController extends Controller
         // actualiza  el file_path
         if ($request->hasFile('animal_picture')) {
             $file = $request->file('animal_picture');
-
-            // Validate that the uploaded file is an image
-            $request->validate([
-                'animal_picture' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
 
             // Generate a unique name for the image
             $fileName = time() . '.' . $file->getClientOriginalExtension();
@@ -112,7 +98,7 @@ class LostPetReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateStatus(Request $request, LostPetReport $lostPetReport)
+    public function updateStatus(UpdateLostPetReportStatusRequest  $request, LostPetReport $lostPetReport)
     {
         // Verificar si el reporte existe
         if (!$lostPetReport) {
@@ -120,10 +106,10 @@ class LostPetReportController extends Controller
             return response()->json(['message' => 'El reporte de mascota perdida no existe'], 404);
         }
 
-        // Validar los datos del request
-        $request->validate([
-            'is_found' => 'boolean|required'
-        ]);
+        // // Validar los datos del request
+        // $request->validate([
+        //     'is_found' => 'boolean|required'
+        // ]);
 
         // Actualizar el estado del reporte de mascota perdida
         $lostPetReport->update([

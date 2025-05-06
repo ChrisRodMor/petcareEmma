@@ -73,14 +73,21 @@ class ReportController extends Controller
     public function updateStatus(Request $request, Report $report)
     {
         $request->validate([
-            'status' => 'in:Revisando,Avanzando,Terminado'
+            'status' => 'required|in:Revisando,Avanzando,Terminado',
+        ], [
+            // Mensajes personalizados
+            'status.required' => 'El campo :attribute es obligatorio.',
+            'status.in' => 'El campo :attribute debe ser uno de los siguientes: Revisando, Avanzando o Terminado.',
+        ], [
+            // Traducciones de atributos
+            'status' => 'estado del reporte',
         ]);
         $report->update([
             'status' => $request->input('status'), // Asignar el nuevo valor de 'status' desde el request
         ]);
 
         // Retornar una respuesta JSON indicando que los datos han sido actualizados correctamente
-        return response()->json(['message' => 'El status del reporte de abuso ha sido actualizado correctamente', 'data' => $report], 200);
+        return response()->json(['message' => 'El status del reporte ha sido actualizado correctamente', 'data' => $report], 200);
     }
 
     /**

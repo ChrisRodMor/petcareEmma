@@ -6,6 +6,7 @@ use App\Models\AdoptionReport;
 use App\Models\Animal;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreAdoptionReportRequest;
 
 class AdoptionReportController extends Controller
 {
@@ -28,15 +29,8 @@ class AdoptionReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAdoptionReportRequest $request)
     {
-        // Validar los datos del request
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'description' => 'required|string',
-            'animal_id' => 'required|exists:animals,id',
-        ]);
-
         // Obtener el usuario de la base de datos usando el ID proporcionado en el request
         $user = User::findOrFail($request->input('user_id'));
 

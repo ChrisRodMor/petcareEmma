@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAbuseReportRequest extends FormRequest
+class StoreAdoptionReportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,37 +22,29 @@ class StoreAbuseReportRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => 'required|exists:users,id',
             'description' => 'required|string',
-            'direction_event' => 'required|string',
-            'date_event' => 'required|date',
-            'hour_event' => 'required|date_format:H:i:s',
+            'animal_id' => 'required|exists:animals,id',
         ];
     }
 
-    /**
-     * Custom attribute names.
-     */
     public function attributes(): array
     {
         return [
+            'user_id' => 'usuario',
             'description' => 'descripción',
-            'direction_event' => 'dirección del evento',
-            'date_event' => 'fecha del evento',
-            'hour_event' => 'hora del evento',
+            'animal_id' => 'animal',
         ];
     }
 
-    /**
-     * Custom validation messages.
-     */
+    
+    
     public function messages(): array
     {
         return [
-            'required' => 'El campo :attribute es requerido.',
+            'required' => 'El campo :attribute es obligatorio.',
             'string' => 'El campo :attribute debe ser una cadena de texto.',
-            'date' => 'El campo :attribute debe ser una fecha válida.',
-            'date_format' => 'El campo :attribute debe tener el formato correcto (HH:MM:SS).',
+            'exists' => 'El :attribute seleccionado no existe.',
         ];
     }
-
 }
