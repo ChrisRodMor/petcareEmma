@@ -3,12 +3,14 @@ import Navbarcliente from './Navbarcliente';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from './AuthContext'; // Importa el contexto de autenticación
+import { AuthContext } from './AuthContext';
 
 function ReporteAdopcion() {
-  const { authData } = useContext(AuthContext); // Obtiene authData del contexto
-  const [reportType] = useState('Reporte de adopcion');
+  const { authData } = useContext(AuthContext);
+  const [reportType] = useState('Reporte de adopción');
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const [formData, setFormData] = useState({
     user_id: '',
@@ -22,51 +24,40 @@ function ReporteAdopcion() {
       ...formData,
       [id]: value,
     });
+    setValidationErrors({ ...validationErrors, [id]: null }); // Limpiar error del campo al escribir
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setValidationErrors({});
 
-    // Validar existencia de IDs de cliente y animal
     try {
-      const [clientResponse, animalResponse] = await Promise.all([
-        axios.get(`http://127.0.0.1:8000/api/clients/${formData.user_id}`, {
-          headers: {
-            Authorization: `Bearer ${authData.token}`,
-            Accept: 'application/json'
-          }
-        }),
-        axios.get(`http://127.0.0.1:8000/api/animals/${formData.animal_id}`, {
-          headers: {
-            Authorization: `Bearer ${authData.token}`,
-            Accept: 'application/json'
-          }
-        })
-      ]);
-
-      // Si alguno de los IDs no existe, muestra un error y no envía el formulario
-      if (clientResponse.data.error || animalResponse.data.error) {
-        setError('ID de cliente o animal no encontrado.');
-        return;
-      }
-
-      // Si ambos IDs existen, procede a enviar el formulario
       const formDataToSend = new FormData();
       formDataToSend.append('user_id', formData.user_id);
       formDataToSend.append('animal_id', formData.animal_id);
       formDataToSend.append('description', formData.description);
 
-      await axios.post('http://127.0.0.1:8000/api/store-adoption-report', formDataToSend, {
+      const response = await axios.post('http://127.0.0.1:8000/api/store-adoption-report', formDataToSend, {
         headers: {
           Authorization: `Bearer ${authData.token}`,
           Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
         },
       });
-      alert('Reporte guardado con éxito');
+
+      setSuccess(response.data.message);
+      setFormData({ user_id: '', animal_id: '', description: '' }); // Limpiar campos
     } catch (error) {
-      console.error('Error al guardar el reporte:', error);
-      alert('Hubo un error al guardar el reporte');
+      if (error.response?.status === 422) {
+        // Laravel validation error
+        setValidationErrors(error.response.data.errors || {});
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message); // Ej. animal ya adoptado
+      } else {
+        setError('Error al guardar el reporte.');
+      }
     }
   };
 
@@ -81,31 +72,64 @@ function ReporteAdopcion() {
         </div>
         <Container className="bg-white p-5 rounded shadow mb-5">
           {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
           <Container className="d-flex text-align-center align-items-center">
             <Form onSubmit={handleSubmit} className="col-12">
+              <Form.Group className="mb-3" controlId="user_id">
+                <Form.Label>ID Cliente</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Ingrese aquí su identificador..."
+                  value={formData.user_id}
+                  onChange={handleInputChange}
+                  min={1}
+                  isInvalid={!!validationErrors.user_id}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.user_id}
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                <Form.Group className="mb-3" controlId="user_id">
-                    <Form.Label>ID Cliente</Form.Label>
-                    <Form.Control type="number" placeholder="Ingrese aquí su identificador..." onChange={handleInputChange} min={1}/>
-                </Form.Group>
+              <Form.Group className="mb-3" controlId="animal_id">
+                <Form.Label>ID Animal</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Identificador de la mascota a adoptar"
+                  value={formData.animal_id}
+                  onChange={handleInputChange}
+                  min={1}
+                  isInvalid={!!validationErrors.animal_id}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.animal_id}
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                <Form.Group className="mb-3" controlId="animal_id">
-                    <Form.Label>ID Animal</Form.Label>
-                    <Form.Control type="number" placeholder="Identificador de la mascota a adoptar" onChange={handleInputChange} min={1}/>
-                </Form.Group>
+              <Form.Group className="mb-3" controlId="description">
+                <Form.Label>Descripción</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  placeholder="Describa aquí los detalles de la adopción"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  isInvalid={!!validationErrors.description}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {validationErrors.description}
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                <Form.Group className="mb-3" controlId="description">
-                  <Form.Label>Descripción</Form.Label>
-                  <Form.Control as="textarea" rows={5} placeholder="Describa aquí los detalles de la adopción" onChange={handleInputChange} />
-                </Form.Group>
-
-                <div className="col-md-12 text-center">
-                  <Link to="/reportes">
-                    <Button variant="outline-warning" className="btn-block" style={{ marginRight: '5%' }}>Regresar</Button>
-                  </Link>
-                  <Button type="submit" variant="warning">Guardar</Button>
-                </div>
-              
+              <div className="col-md-12 text-center">
+                <Link to="/reportes">
+                  <Button variant="outline-warning" className="btn-block" style={{ marginRight: '5%' }}>
+                    Regresar
+                  </Button>
+                </Link>
+                <Button type="submit" variant="warning">
+                  Guardar
+                </Button>
+              </div>
             </Form>
           </Container>
         </Container>

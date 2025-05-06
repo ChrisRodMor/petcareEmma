@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Container, InputGroup, Modal } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Importa Axios
+import axios from 'axios';
 import banner from './img/bannerPetCare.png';
 import './Register.css';
 
@@ -14,13 +14,13 @@ function Register() {
         password_confirmation: '',
         address: '',
         birthdate: '',
-  
     });
 
     const [showPassword, setShowPassword] = useState(false);
     const [showpassword_confirmation, setShowpassword_confirmation] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
 
     const navigate = useNavigate();
 
@@ -30,54 +30,56 @@ function Register() {
             ...form,
             [name]: value,
         });
+        setValidationErrors({ ...validationErrors, [name]: null }); // limpiar error del campo al escribir
     };
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+    const togglePasswordVisibility = () => setShowPassword(!showPassword);
+    const togglepassword_confirmationVisibility = () => setShowpassword_confirmation(!showpassword_confirmation);
 
-    const togglepassword_confirmationVisibility = () => {
-        setShowpassword_confirmation(!showpassword_confirmation);
-    };
-
-    // Configura la instancia principal de Axios
     const axiosInstance = axios.create({
         baseURL: 'http://127.0.0.1:8000/api',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        //withCredentials: true // Permite que Axios envíe cookies con las solicitudes
+        headers: { 'Content-Type': 'application/json' }
     });
 
-    // Configura la instancia de Axios para la solicitud CSRF
-    const csrfAxiosInstance = axios.create({
-        baseURL: 'http://127.0.0.1:8000',
-        //withCredentials: true // Permite que Axios envíe cookies con las solicitudes
-    });
+    const csrfAxiosInstance = axios.create({ baseURL: 'http://127.0.0.1:8000' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setValidationErrors({});
+        setRegistrationSuccess(false);
 
         try {
             await csrfAxiosInstance.get('/sanctum/csrf-cookie');
-            const response = await axiosInstance.post('http://127.0.0.1:8000/api/register',form);
-            console.log('Registro exitoso:', response.data);
+            const response = await axiosInstance.post('/register', form);
+
             setRegistrationSuccess(true);
             setShowModal(true);
+            setForm({
+                name: '',
+                email: '',
+                phone: '',
+                password: '',
+                password_confirmation: '',
+                address: '',
+                birthdate: '',
+            });
+
             setTimeout(() => {
                 setShowModal(false);
                 navigate('/login');
             }, 3000);
         } catch (error) {
-            console.error('Error:', error);
-            console.error('Detailed:', error.message);
+            if (error.response?.status === 422) {
+                setValidationErrors(error.response.data.errors || {});
+            } else {
+                setRegistrationSuccess(false);
+            }
             setShowModal(true);
         }
     };
 
     return (
         <>
-            {/* Import Bootstrap Icons */}
             <link
                 rel="stylesheet"
                 href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css"
@@ -100,9 +102,13 @@ function Register() {
                                     placeholder="Ingrese su nombre..."
                                     value={form.name}
                                     onChange={handleChange}
+                                    isInvalid={!!validationErrors.name}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {validationErrors.name}
+                                </Form.Control.Feedback>
                             </Form.Group>
-                            
+
                             <div className="d-flex justify-content-center">
                                 <Form.Group controlId="formEmail" style={{ width: '48%', marginRight: '5%' }}>
                                     <Form.Label>Correo electrónico</Form.Label>
@@ -112,7 +118,11 @@ function Register() {
                                         placeholder="example@example.com"
                                         value={form.email}
                                         onChange={handleChange}
+                                        isInvalid={!!validationErrors.email}
                                     />
+                                    <Form.Control.Feedback type="invalid">
+                                        {validationErrors.email}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
 
                                 <Form.Group controlId="formPhone" style={{ width: '48%' }}>
@@ -120,10 +130,14 @@ function Register() {
                                     <Form.Control
                                         type="text"
                                         name="phone"
-                                        placeholder="El campo debe de contener a 10 dígitos."
+                                        placeholder="10 dígitos"
                                         value={form.phone}
                                         onChange={handleChange}
+                                        isInvalid={!!validationErrors.phone}
                                     />
+                                    <Form.Control.Feedback type="invalid">
+                                        {validationErrors.phone}
+                                    </Form.Control.Feedback>
                                 </Form.Group>
                             </div>
 
@@ -133,13 +147,17 @@ function Register() {
                                     <Form.Control
                                         type={showPassword ? 'text' : 'password'}
                                         name="password"
-                                        placeholder="Debe contener al menos 8 caracteres. una mayúscula, número y un (!, $, #, % o *)."
+                                        placeholder="Debe contener 8 caracteres, mayúscula, número y (!, $, #, % o *)"
                                         value={form.password}
                                         onChange={handleChange}
-                                    />  
+                                        isInvalid={!!validationErrors.password}
+                                    />
                                     <InputGroup.Text onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
                                         <i className={showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'}></i>
                                     </InputGroup.Text>
+                                    <Form.Control.Feedback type="invalid">
+                                        {validationErrors.password}
+                                    </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
 
@@ -152,10 +170,14 @@ function Register() {
                                         placeholder="********"
                                         value={form.password_confirmation}
                                         onChange={handleChange}
+                                        isInvalid={!!validationErrors.password_confirmation}
                                     />
                                     <InputGroup.Text onClick={togglepassword_confirmationVisibility} style={{ cursor: 'pointer' }}>
                                         <i className={showpassword_confirmation ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'}></i>
                                     </InputGroup.Text>
+                                    <Form.Control.Feedback type="invalid">
+                                        {validationErrors.password_confirmation}
+                                    </Form.Control.Feedback>
                                 </InputGroup>
                             </Form.Group>
 
@@ -164,10 +186,14 @@ function Register() {
                                 <Form.Control
                                     type="text"
                                     name="address"
-                                    placeholder="Av. conchalito 24 col correcaminos 123"
+                                    placeholder="Av. Conchalito 24, Col. Correcaminos"
                                     value={form.address}
                                     onChange={handleChange}
+                                    isInvalid={!!validationErrors.address}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {validationErrors.address}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group controlId="formBirthDate">
@@ -177,7 +203,11 @@ function Register() {
                                     name="birthdate"
                                     value={form.birthdate}
                                     onChange={handleChange}
+                                    isInvalid={!!validationErrors.birthdate}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {validationErrors.birthdate}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <div className="text-center mt-3">

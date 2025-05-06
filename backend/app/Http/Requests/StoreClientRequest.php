@@ -45,11 +45,11 @@ class StoreClientRequest extends FormRequest
     {
         return [
             'name' => 'nombre',
-            'email' => 'correo_electronico',
-            'password' => 'contrasena',
-            'phone' => 'telefono',
-            'birthdate' => 'fecha_nacimiento',
-            'address' => 'direccion',
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
+            'phone' => 'teléfono',
+            'birthdate' => 'fecha de nacimiento',
+            'address' => 'dirección',
 
         ];
     }
@@ -59,17 +59,17 @@ class StoreClientRequest extends FormRequest
         return [
             'unique' => 'Ya existe un registro con ese :attribute.',
             'required' => 'El campo :attribute es requerido.',
-            'numeric' => 'El campo :attribute debe ser numerico.',
-            'max' => 'El campo :attribute debe contener maximo :max caracteres.',
+            'numeric' => 'El campo :attribute debe ser numérico.',
+            'max' => 'El campo :attribute debe contener máximo :max caracteres.',
             'digits' => 'El campo :attribute debe de ser a :digits digitos.',
-            'in' => 'El campo :attribute debe de tener un dato valido.',
-            'email' => 'El campo :attribute debe ser una direccion de correo electronico valido.',
-            'regex' => 'El campo :attribute debe ser valido.',
-            'password.regex' => 'El campo :attribute debe de tener minimo 8 caracteres, una mayuscula ,un numero, y un caracter especial (!$#%.,*).',
+            'in' => 'El campo :attribute debe de tener un dato válido.',
+            'email' => 'El campo :attribute debe ser una dirección de correo electrónico válido.',
+            'regex' => 'El campo :attribute debe ser válido.',
+            'password.regex' => 'El campo :attribute debe de tener mínimo 8 caracteres, una mayúscula ,un número, y un carácter especial (!$#%.,*).',
             'confirmed' => 'El campo :attribute no coincide.',
-            'string'=> 'El campo :attribute deben ser caracteres',
+            'string'=> 'El campo :attribute deben una cadena de texto.',
             'before' => 'Debes ser mayor de edad para poder registrarte.',
-            'date' => 'El campo :attribute debe ser una fecha valida.',
+            'date' => 'El campo :attribute debe ser una fecha válida.',
             'after' => 'El campo :attribute debe ser una fecha posterior a :date.',
         ];
     }
