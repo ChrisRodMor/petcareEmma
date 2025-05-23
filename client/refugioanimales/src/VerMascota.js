@@ -141,7 +141,23 @@ function VerMascota() {
                                 <Link to='/adoptar'>
                                     <Button type="button" variant="btn btn-outline-warning btn-block" className='me-5'>Regresar</Button>
                                 </Link>
-                                <Button href="https://docs.google.com/forms/d/e/1FAIpQLScl546kYHW1Jlz8lb2Fiaq74cIeLXiF2OEi6X0XszkyagsTTw/viewform?embedded=true" target="_blank" type="button" variant="warning">Adoptar</Button>
+                                <Button href="https://docs.google.com/forms/d/e/1FAIpQLScl546kYHW1Jlz8lb2Fiaq74cIeLXiF2OEi6X0XszkyagsTTw/viewform?embedded=true" className="me-5" target="_blank" type="button" variant="warning">Adoptar</Button>
+                                {authData.type === 'employee' && (
+                                    
+                                    <Button
+                                    variant="success"
+                                    >
+                                    Editar
+                                    </Button>,
+                                    
+                                    
+                                    <Button
+                                    variant="danger"
+                                    onClick={() => handleEliminarAnimal(mascota.id)}
+                                    >
+                                    Eliminar
+                                    </Button>
+                                )}
                             </div>
                         </Container>
                     </Col>
