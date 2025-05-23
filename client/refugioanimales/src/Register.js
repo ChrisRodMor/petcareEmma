@@ -36,10 +36,10 @@ function Register() {
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
     const togglepassword_confirmationVisibility = () => setShowpassword_confirmation(!showpassword_confirmation);
 
-    const axiosInstance = axios.create({
-        baseURL: 'http://127.0.0.1:8000/api',
-        headers: { 'Content-Type': 'application/json' }
-    });
+    // const axiosInstance = axios.create({
+    //     baseURL: 'http://127.0.0.1:8000/api',
+    //     headers: { 'Content-Type': 'application/json' }
+    // });
 
     const csrfAxiosInstance = axios.create({ baseURL: 'http://127.0.0.1:8000' });
 
@@ -50,7 +50,7 @@ function Register() {
 
         try {
             await csrfAxiosInstance.get('/sanctum/csrf-cookie');
-            const response = await axiosInstance.post('/register', form);
+            //const response = await axiosInstance.post('/register', form);
 
             setRegistrationSuccess(true);
             setShowModal(true);
