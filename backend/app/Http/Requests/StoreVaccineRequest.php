@@ -26,7 +26,7 @@ class StoreVaccineRequest extends FormRequest
             'vaccine_brand' => 'required|string|max:255',
             'vaccine_type' => 'required|string|max:255',
             'vaccine_batch' => 'nullable|string|max:255',
-            'application_date' => 'required|date',
+            'application_date' => 'required|date|before_or_equal:today',
             'doctor_name' => 'required|string|max:255',
             'doctor_license' => 'required|string|max:255',
         ];
@@ -53,6 +53,7 @@ class StoreVaccineRequest extends FormRequest
             'max' => 'El campo :attribute no puede tener más de :max caracteres.',
             'exists' => 'El :attribute seleccionado no existe.',
             'date' => 'El campo :attribute debe ser una fecha válida.',
+            'application_date.before_or_equal' => 'La fecha de :attribute no puede ser posterior a hoy.',
         ];
     }
 

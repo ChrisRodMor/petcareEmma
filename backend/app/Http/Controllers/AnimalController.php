@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AnimalController extends Controller
 {
@@ -183,4 +184,132 @@ class AnimalController extends Controller
     {
         //
     }
+
+    public function animalsCounts(Request $request)
+    {
+        // Total de animales activos (no soft-deleted)
+        $totalActive = Animal::whereNull('deleted_at')->count();
+
+        // Por especie (type)
+        $rawByType = Animal::select('type_id', DB::raw('COUNT(*) as total'))
+            ->whereNull('deleted_at')
+            ->groupBy('type_id')
+            ->with('type:id,name')
+            ->get();
+
+        $byType = [
+            'labels' => $rawByType->pluck('type.name')->all(),
+            'data'   => $rawByType->pluck('total')->all(),
+        ];
+
+        // Por edad calculada desde birthdate
+        $rawByAge = Animal::select(
+                DB::raw("
+                    CASE
+                        WHEN birthdate IS NULL THEN 'Desconocido'
+                        ELSE CAST(YEAR(CURDATE()) - YEAR(birthdate) AS CHAR)
+                    END AS age_label
+                "),
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereNull('deleted_at')
+            ->groupBy('age_label')
+            ->orderByRaw("age_label + 0 ASC")
+            ->get();
+
+        $byAge = [
+            'labels' => $rawByAge->pluck('age_label')->all(),
+            'data'   => $rawByAge->pluck('total')->all(),
+        ];
+
+        // Por tamaño
+        $rawBySize = Animal::select('size', DB::raw('COUNT(*) as total'))
+            ->whereNull('deleted_at')
+            ->groupBy('size')
+            ->get();
+
+        $bySize = [
+            'labels' => $rawBySize->pluck('size')->all(),
+            'data'   => $rawBySize->pluck('total')->all(),
+        ];
+
+        // Por estado de salud
+        $rawByHealth = Animal::select('health', DB::raw('COUNT(*) as total'))
+            ->whereNull('deleted_at')
+            ->groupBy('health')
+            ->get();
+
+        $byHealth = [
+            'labels' => $rawByHealth->pluck('health')->all(),
+            'data'   => $rawByHealth->pluck('total')->all(),
+        ];
+
+        // Respuesta consolidada
+        return response()->json([
+            'total_active' => $totalActive,
+            'by_type'      => $byType,
+            'by_age'       => $byAge,
+            'by_size'      => $bySize,
+            'by_health'    => $byHealth,
+        ], 200);
+    }
+
+    public function incomeSummary(Request $request)
+    {
+        $meses = [
+            1  => 'Enero', 2  => 'Febrero', 3  => 'Marzo',
+            4  => 'Abril', 5  => 'Mayo',    6  => 'Junio',
+            7  => 'Julio',  8  => 'Agosto',  9  => 'Septiembre',
+            10 => 'Octubre',11 => 'Noviembre',12 => 'Diciembre',
+        ];
+
+        // Total de animales ingresados (incluye soft-deleted)
+        $totalAnimals = Animal::withTrashed()->count();
+
+        // Trae todos (incluye soft-deleted) agrupados por año y mes
+        $query = Animal::withTrashed()
+            ->select(
+                DB::raw('YEAR(created_at)  as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('COUNT(*)         as total')
+            )
+            ->groupBy('year','month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        // Estructuramos los datos por año
+        $byYear = [];
+        foreach ($query as $row) {
+            $y = $row->year;
+            $m = $meses[$row->month];
+            $t = $row->total;
+
+            if (!isset($byYear[$y])) {
+                $byYear[$y] = [
+                    'labels' => [], // nombres de meses
+                    'data'   => [], // totales
+                ];
+            }
+
+            $byYear[$y]['labels'][] = $m;
+            $byYear[$y]['data'][]   = $t;
+        }
+
+        // Convertir a array indexado para el front
+        $datasets = [];
+        foreach ($byYear as $year => $series) {
+            $datasets[] = [
+                'year'   => $year,
+                'labels' => $series['labels'],
+                'data'   => $series['data'],
+            ];
+        }
+
+        return response()->json([
+            'total_animals' => $totalAnimals,
+            'datasets'      => $datasets,
+        ], 200);
+    }
+
 }

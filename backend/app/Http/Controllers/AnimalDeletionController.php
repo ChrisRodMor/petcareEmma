@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\AnimalDeletion;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class AnimalDeletionController extends Controller
 {
     /**
@@ -63,6 +63,27 @@ class AnimalDeletionController extends Controller
             'message' => 'Baja registrada y animal eliminado correctamente.'
         ], 200);
     }
+    public function summary()
+    {
+        // 1. Conteo por motivo
+        $counts = AnimalDeletion::select('reason', DB::raw('COUNT(*) as total'))
+            ->groupBy('reason')
+            ->get();
+
+        // 2. Total de bajas
+        $totalDeletions = $counts->sum('total');
+
+        // 3. Preparar arrays para gráficas
+        $labels = $counts->pluck('reason')->all();
+        $data   = $counts->pluck('total')->all();
+
+        return response()->json([
+            'total_deletions' => $totalDeletions,
+            'labels'          => $labels,
+            'data'            => $data,
+        ], 200);
+    }
+
 
     /**
      * Display the specified resource.
