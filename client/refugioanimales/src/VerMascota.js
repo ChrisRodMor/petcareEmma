@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Button, Col, Row } from 'react-bootstrap';
+import { Container, Button, Col, Row, Modal, Form } from 'react-bootstrap';
 import ClientCardProfile from './ClientCardProfile';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -14,6 +14,20 @@ function VerMascota() {
     const [mascota, setMascota] = useState(null);
     const [vacunas, setVacunas] = useState(null);
     const [currentVacunaIndex, setCurrentVacunaIndex] = useState(0);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteReason, setDeleteReason] = useState('');
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
+
+    const reasons = [
+        'Reubicación',
+        'Fallecimiento',
+        'Error de registro',
+        'Escape o desaparición',
+        'Caso especial (otros)'
+    ];
+
+
 
     useEffect(() => {
         const fetchMascota = async () => {
@@ -81,6 +95,45 @@ function VerMascota() {
         return <div>Loading...</div>; // O un spinner si prefieres
     }
 
+    const handleEliminarAnimal = () => {
+        if (!deleteReason) {
+            setError('Debes seleccionar un motivo para eliminar.');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('reason', deleteReason);
+
+        fetch(`http://127.0.0.1:8000/api/delete-animals/${id}`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+            },
+            body: formData
+        })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    setSuccess('Animal eliminado exitosamente.');
+                    setError(null);
+                    setTimeout(() => {
+                        window.location.href = '/adoptar';
+                    }, 2000);
+                } else {
+                    setError(body.message || 'Ocurrió un error al eliminar el animal.');
+                    setSuccess(null);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                setError('Error de conexión con el servidor.');
+                setSuccess(null);
+            });
+    };
+
+
 
     return (
         <div>
@@ -142,6 +195,7 @@ function VerMascota() {
                                 <p className='lead'>Salud: {mascota.health}</p>
                                 <p className='lead'>Descripción: {mascota.description}</p>
                             </div>
+
                             <div className='d-flex justify-content-center'>
                                 <Link to='/adoptar'>
                                     <Button type="button" variant="btn btn-outline-warning btn-block" className='me-5'>Regresar</Button>
@@ -158,7 +212,7 @@ function VerMascota() {
                                     
                                     <Button
                                     variant="danger"
-                                    //onClick={() => handleEliminarAnimal(mascota.id)}
+                                    onClick={() => setShowDeleteModal(true)}
                                     >
                                     Eliminar
                                     </Button>
@@ -168,6 +222,30 @@ function VerMascota() {
                     </Col>
                 </Row>
             </Container>
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmar eliminación</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group>
+                        <Form.Label>Motivo de baja</Form.Label>
+                        <Form.Select value={deleteReason} onChange={(e) => setDeleteReason(e.target.value)}>
+                            <option value="">Selecciona una opción...</option>
+                            {reasons.map((r, i) => (
+                                <option key={i} value={r}>{r}</option>
+                            ))}
+                        </Form.Select>
+                        <br></br>
+                        {error && <div className="alert alert-danger text-center">{error}</div>}
+                        {success && <div className="alert alert-success text-center">{success}</div>}
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</Button>
+                    <Button variant="danger" onClick={handleEliminarAnimal}>Confirmar eliminación</Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     );
 }

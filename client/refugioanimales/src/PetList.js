@@ -20,6 +20,7 @@ function PetList() {
                 setFilteredPets(response.data.data);
             } catch (error) {
                 console.error('Error fetching pets:', error);
+          
             }
         };
 

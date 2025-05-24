@@ -1,5 +1,5 @@
 import { AuthContext } from './AuthContext';
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Container, Button } from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import Navbarcliente from './Navbarcliente';
