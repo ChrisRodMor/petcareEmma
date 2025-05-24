@@ -153,7 +153,7 @@ function VerMascota() {
                                     
                                     <Button
                                     variant="danger"
-                                    onClick={() => handleEliminarAnimal(mascota.id)}
+                                    //onClick={() => handleEliminarAnimal(mascota.id)}
                                     >
                                     Eliminar
                                     </Button>
