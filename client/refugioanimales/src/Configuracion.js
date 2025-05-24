@@ -13,6 +13,21 @@ function Configuracion() {
     const [showModal, setShowModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [operationSuccess, setOperationSuccess] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
+
+    const formatValidationErrors = (errors) => {
+    return (
+        <div className="text-start">
+        {Object.values(errors)
+            .flat()
+            .map((msg, index) => (
+            <div key={index}>• {msg}</div>
+            ))}
+        </div>
+    );
+    };
+
+
 
     useEffect(() => {
         if (authData) {
@@ -45,6 +60,11 @@ function Configuracion() {
             ...formData,
             [name]: value
         });
+
+        setValidationErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: null
+        }));
     };
 
     const handleFileChange = (e) => {
@@ -70,7 +90,8 @@ function Configuracion() {
             const response = await fetch('http://127.0.0.1:8000/api/update-profile', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
                 },
                 body: formDataToSend
             });
@@ -90,17 +111,20 @@ function Configuracion() {
     
         } catch (error) {
             console.error('Error:', error);
-    
-            // Configura el mensaje y el estado de error del modal
-            let errorMessage = 'Error al actualizar el perfil';
+
             if (error.errors) {
-                // Si hay errores específicos, los concatenamos en un solo mensaje
-                errorMessage = Object.values(error.errors).flat().join(' ');
+                setValidationErrors(error.errors);
+                setModalMessage('Error al actualizar el perfil'); // ← aquí se guarda como JSX
+                setOperationSuccess(false);
+                setShowModal(true);
+            } else {
+                setModalMessage('Error al actualizar el perfil');
+                setOperationSuccess(false);
+                setShowModal(true);
             }
-            setModalMessage(errorMessage);
-            setOperationSuccess(false);
-            setShowModal(true);
         }
+
+
     };
 
     if (!authData) {
@@ -143,49 +167,69 @@ function Configuracion() {
                                         <Form.Control type="text" value={authData.name} disabled />
                                     </Form.Group>
                                     <Form.Group controlId="formEmail" className='mb-3'>
-                                        <Form.Label>Correo Electrónico</Form.Label>
-                                        <Form.Control
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                        />
+                                    <Form.Label>Correo Electrónico</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        isInvalid={!!validationErrors.email}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {Array.isArray(validationErrors.email) ? validationErrors.email[0] : validationErrors.email}
+                                    </Form.Control.Feedback>
                                     </Form.Group>
+
                                     <Form.Group controlId="formPhone" className='mb-3'>
-                                        <Form.Label>Celular</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="phone"
-                                            placeholder='El campo debe de contener a 10 dígitos.'
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                        />
+                                    <Form.Label>Celular</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="phone"
+                                        placeholder="El campo debe contener 10 dígitos."
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        isInvalid={!!validationErrors.phone}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {Array.isArray(validationErrors.phone) ? validationErrors.phone[0] : validationErrors.phone}
+                                    </Form.Control.Feedback>
                                     </Form.Group>
+
                                     <Form.Group controlId="formPassword" className='mb-3'>
-                                        <Form.Label>Cambiar contraseña</Form.Label>
-                                        <InputGroup>
-                                            <Form.Control
-                                                type={showPassword ? 'text' : 'password'}
-                                                name="password"
-                                                placeholder="Debe contener al menos 8 caracteres. una mayúscula, número y un (!, $, #, % o *)."
-                                                value={formData.password}
-                                                onChange={handleChange}
-                                            />
-                                            <InputGroup.Text onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
-                                                <i className={showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'}></i>
-                                            </InputGroup.Text>
-                                        </InputGroup>
-                                    </Form.Group>
-                                    <Form.Group controlId="formAddress" className='mb-3'>
-                                        <Form.Label>Dirección</Form.Label>
+                                    <Form.Label>Cambiar contraseña</Form.Label>
+                                    <InputGroup>
                                         <Form.Control
-                                            type="text"
-                                            name="address"
-                                            placeholder="Nueva contraseña..."
-                                            value={formData.address}
-                                            onChange={handleChange}
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        placeholder="Debe contener al menos 8 caracteres. Una mayúscula, número y (!, $, #, %, *)."
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        isInvalid={!!validationErrors.password}
                                         />
+                                        <InputGroup.Text onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
+                                        <i className={showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'}></i>
+                                        </InputGroup.Text>
+                                        <Form.Control.Feedback type="invalid">
+                                        {Array.isArray(validationErrors.password) ? validationErrors.password[0] : validationErrors.password}
+                                        </Form.Control.Feedback>
+                                    </InputGroup>
                                     </Form.Group>
+
+                                    <Form.Group controlId="formAddress" className='mb-3'>
+                                    <Form.Label>Dirección</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="address"
+                                        placeholder="Tu dirección..."
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        isInvalid={!!validationErrors.address}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {Array.isArray(validationErrors.address) ? validationErrors.address[0] : validationErrors.address}
+                                    </Form.Control.Feedback>
+                                    </Form.Group>
+
                                     <Form.Group controlId="formBirthDate" className='mb-5'>
                                         <Form.Label>Fecha de Nacimiento</Form.Label>
                                         <Form.Control type="text" value={authData.birthdate} disabled />
