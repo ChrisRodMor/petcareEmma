@@ -63,7 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('/store-lost-pet',[LostPetReportController::class,'store']);
     Route::get('/lost-pets',[LostPetReportController::class,'index']);
-    Route::post('/lost-pet-status/{lostPetReport}',[LostPetReportController::class,'updateStatus']);
+    Route::post('/lost-pet-status/{idReport}',[LostPetReportController::class,'updateStatus']);
 
     //dashboard
     // 1. Conteos de animales en el refugio
@@ -72,5 +72,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/dashboard/animals/deletions',[AnimalDeletionController::class, 'summary']);
     // 3. Totales de ingresos (mensual y anual)
     Route::get('/dashboard/animals/income',[AnimalController::class, 'incomeSummary']);
+    // 4. Cantidad de adopciones por mes y año
+    Route::get('/dashboard/adoptions',[AdoptionReportController::class, 'adoptionsSummary']);
+    // 5. Cantidad de reportes atendidos y pendientes
+    Route::get('/dashboard/reports',[ReportController::class, 'statusSummary']);
+    // 6. Tasa de recuperación de mascotas perdidas
+    Route::get('/dashboard/lost-pets',[LostPetReportController::class, 'lostPetsRecovery']);
 
 });

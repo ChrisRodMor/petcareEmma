@@ -7,6 +7,7 @@ use App\Models\Animal;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreAdoptionReportRequest;
+use Illuminate\Support\Facades\DB;
 
 class AdoptionReportController extends Controller
 {
@@ -59,6 +60,60 @@ class AdoptionReportController extends Controller
         return response()->json(['message' => 'El reporte de adopción se ha registrado correctamente', 'data' => $adoptionReport], 200);
     }
 
+    public function adoptionsSummary(Request $request)
+    {
+        // Mapa de meses en español
+        $meses = [
+            1  => 'Enero', 2  => 'Febrero', 3  => 'Marzo',
+            4  => 'Abril', 5  => 'Mayo',    6  => 'Junio',
+            7  => 'Julio',  8  => 'Agosto',  9  => 'Septiembre',
+            10 => 'Octubre',11 => 'Noviembre',12 => 'Diciembre',
+        ];
+
+        // Total de adopciones
+        $totalAdoptions = AdoptionReport::count();
+
+        // Consulta agrupada por año y mes
+        $rows = AdoptionReport::select(
+                DB::raw('YEAR(created_at)  AS year'),
+                DB::raw('MONTH(created_at) AS month'),
+                DB::raw('COUNT(*)         AS total')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        // Estructurar por año para gráficas
+        $byYear = [];
+        foreach ($rows as $row) {
+            $y = $row->year;
+            $m = $meses[$row->month] ?? $row->month;
+            $t = $row->total;
+
+            if (! isset($byYear[$y])) {
+                $byYear[$y] = ['labels' => [], 'data' => []];
+            }
+
+            $byYear[$y]['labels'][] = $m;
+            $byYear[$y]['data'][]   = $t;
+        }
+
+        // Convertir a array indexado
+        $datasets = [];
+        foreach ($byYear as $year => $series) {
+            $datasets[] = [
+                'year'   => $year,
+                'labels' => $series['labels'],
+                'data'   => $series['data'],
+            ];
+        }
+
+        return response()->json([
+            'total_adoptions' => $totalAdoptions,
+            'datasets'        => $datasets,
+        ], 200);
+    }
 
     /**
      * Display the specified resource.

@@ -15,6 +15,24 @@ class ReportController extends Controller
         $reports=Report::all();
         return response()->json(['data' => $reports], 200);
     }
+    
+    public function statusSummary(Request $request)
+    {
+        // 1. Cálculo de totales
+        $attended = Report::where('status', 'Terminado')->count();
+        $pending  = Report::whereIn('status', ['Revisando', 'Avanzando'])->count();
+        $total    = $attended + $pending;
+
+        // 2. Preparar labels y data para front
+        $labels = ['Atendidos', 'Pendientes'];
+        $data   = [$attended, $pending];
+
+        return response()->json([
+            'total_reports' => $total,
+            'labels'        => $labels,
+            'data'          => $data,
+        ], 200);
+    }
 
     /**
      * Show the form for creating a new resource.
