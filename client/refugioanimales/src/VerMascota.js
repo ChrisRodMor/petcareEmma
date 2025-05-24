@@ -77,6 +77,11 @@ function VerMascota() {
         }
     };
 
+    if (!authData) {
+        return <div>Loading...</div>; // O un spinner si prefieres
+    }
+
+
     return (
         <div>
             {authData.type === 'employee' ? <Navbaremployee /> : <Navbarcliente />}
