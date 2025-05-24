@@ -22,7 +22,7 @@ class StoreVaccineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'animal_id' => 'required|exists:animals,id',
+            // 'animal_id' => 'required|exists:animals,id',
             'vaccine_brand' => 'required|string|max:255',
             'vaccine_type' => 'required|string|max:255',
             'vaccine_batch' => 'nullable|string|max:255',
@@ -34,7 +34,7 @@ class StoreVaccineRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'animal_id' => 'animal',
+            // 'animal_id' => 'animal',
             'vaccine_brand' => 'marca',
             'vaccine_type' => 'tipo',
             'vaccine_batch' => 'lote',

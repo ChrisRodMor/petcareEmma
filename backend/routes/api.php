@@ -32,7 +32,7 @@ Route::get('/animals/{animal}', [AnimalController::class, 'show']);
 
 //Vacunas
 Route::get('/vaccines/{animal}', [VaccineController::class, 'getVaccines']);
-Route::post('/store-vaccine', [VaccineController::class, 'store']);
+Route::post('/store-vaccine/{idAnimal}', [VaccineController::class, 'store']);
 
 //Grupo de rutas con el middleware de autenticación con Sanctum (si no está logueado el usuario, no puede acceder)
 Route::middleware(['auth:sanctum'])->group(function () {

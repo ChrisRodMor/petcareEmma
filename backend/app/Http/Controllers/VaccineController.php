@@ -31,12 +31,26 @@ class VaccineController extends Controller
      * Store a newly created resource in storage.
      */
     //crear vacuna
-    public function store(StoreVaccineRequest $request)
+    public function store(StoreVaccineRequest $request, $idAnimal)
     {
+        // 1. Verificar que el animal existe
+        $animal = Animal::find($idAnimal);
+        if (! $animal) {
+            return response()->json([
+                'message' => 'El animal especificado no existe.'
+            ], 404);
+        }
+         // 2. Preparar los datos de la vacuna, asignando el animal_id desde la ruta
         $vaccine_data = $request->all();
-
+        $vaccine_data['animal_id'] = $idAnimal;
+        // 3. Crear el registro de vacuna
         $vaccine = Vaccine::create($vaccine_data);
-        return response()->json(['message' => 'Se ha creado el registro de la vacuna.', 'data' => $vaccine], 200);
+
+        // 4. Responder con confirmación y el nuevo registro
+            return response()->json([
+                'message' => 'Se ha creado el registro de la vacuna.',
+                'data'    => $vaccine
+            ], 200);
     }
 
     /**
