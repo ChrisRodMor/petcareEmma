@@ -34,6 +34,7 @@ return new class extends Migration
 
             //marcas de tiempo
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

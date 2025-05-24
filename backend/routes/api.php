@@ -10,7 +10,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VaccineController;
-use App\Models\LostPetReport;
+use App\Http\Controllers\AnimalDeletionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +29,8 @@ Route::get('/breeds/{type}', [TypeController::class, 'getBreeds']);
 Route::get('/animals',[AnimalController::class, 'index']);
 Route::post('/search-animals', [AnimalController::class, 'searchAnimals']);
 Route::get('/animals/{animal}', [AnimalController::class, 'show']);
+
+//Vacunas
 Route::get('/vaccines/{animal}', [VaccineController::class, 'getVaccines']);
 Route::post('/store-vaccine', [VaccineController::class, 'store']);
 
@@ -47,6 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //animales
     Route::post('/store-animals', [AnimalController::class, 'store']);
     Route::post('/update-animals/{animal}', [AnimalController::class, 'update']);
+    Route::post('/delete-animals/{id}', [AnimalDeletionController::class, 'store']);
 
     //reportes
     Route::post('/report-update-status/{report}',[ReportController::class, 'updateStatus']);

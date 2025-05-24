@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Animal extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     // Relaciones
     public function type()
@@ -26,6 +27,11 @@ class Animal extends Model
     }
     public function adoptionReport():HasOne{
         return $this->hasOne(AdoptionReport::class);
+    }
+
+    public function animalDeletion(): HasOne
+    {
+        return $this->hasOne(AnimalDeletion::class);
     }
     // Campos asignables de forma masiva
     protected $fillable = [
@@ -49,6 +55,7 @@ class Animal extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
 
