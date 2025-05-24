@@ -18,6 +18,21 @@ function VerMascota() {
     const [deleteReason, setDeleteReason] = useState('');
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        name: '',
+        breed_id: '',
+        birthdate: '',
+        age: '',
+        color: '',
+        weight: '',
+        size: '',
+        health: '',
+        description: '',
+        animal_picture: null
+    });
+    const [validationErrors, setValidationErrors] = useState({});
+
 
     const reasons = [
         'Reubicación',
@@ -33,7 +48,7 @@ function VerMascota() {
         const fetchMascota = async () => {
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/api/animals/${id}`);
-                setMascota(response.data.data); // Establecer los datos de la mascota desde la API
+                setMascota(response.data.data);
             } catch (error) {
                 console.error('Error fetching pet details:', error);
             }
@@ -42,7 +57,7 @@ function VerMascota() {
         const fetchVacunas = async () => {
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/api/vaccines/${id}`);
-                setVacunas(response.data.data); // Establecer las vacunas desde la API
+                setVacunas(response.data.data);
             } catch (error) {
                 console.error('Error fetching vaccines:', error);
                 setVacunas([]); // En caso de error, establecer un array vacío para evitar el problema de undefined
@@ -51,7 +66,7 @@ function VerMascota() {
         
         fetchMascota();
         fetchVacunas();
-    }, [id]);
+    }, [id,mascota]);
 
     if (!mascota) {
         return <div>Loading...</div>; // Mostrar un mensaje de carga mientras se obtienen los datos
@@ -92,8 +107,68 @@ function VerMascota() {
     };
 
     if (!authData) {
-        return <div>Loading...</div>; // O un spinner si prefieres
+        return <div>Loading...</div>;
     }
+
+    const handleOpenEditModal = () => {
+        setEditFormData({
+            name: mascota.name || '',
+            gender: mascota.gender || '',
+            sterilized: mascota.sterilized || '',
+            birthdate: mascota.birthdate || '',
+            age: mascota.age || '',
+            color: mascota.color || '',
+            weight: mascota.weight || '',
+            size: mascota.size || '',
+            health: mascota.health || '',
+            description: mascota.description || '',
+            type_id: mascota.type_id || '',
+            breed_id: mascota.breed_id || '',
+        });
+        setValidationErrors({});
+        setShowEditModal(true);
+    };
+
+    const handleEditarAnimal = async () => {
+        const token = localStorage.getItem('token');
+        const formDataToSend = new FormData();
+
+        Object.entries(editFormData).forEach(([key, value]) => {
+            formDataToSend.append(key, value);
+        });
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/update-animals/${id}`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json'
+            },
+            body: formDataToSend
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+            if (response.status === 422) {
+                setValidationErrors(data.errors || {});
+            } else {
+                setValidationErrors({});
+                setError(data.message || 'Error al editar el animal');
+            }
+            } else {
+            setValidationErrors({});
+            setShowEditModal(false);
+            setSuccess('Animal actualizado exitosamente.');
+            setTimeout(() => window.location.reload(), 2000);
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Error de conexión con el servidor.');
+        }
+    };
+
+
 
     const handleEliminarAnimal = () => {
         if (!deleteReason) {
@@ -202,26 +277,193 @@ function VerMascota() {
                                 </Link>
                                 <Button href="https://docs.google.com/forms/d/e/1FAIpQLScl546kYHW1Jlz8lb2Fiaq74cIeLXiF2OEi6X0XszkyagsTTw/viewform?embedded=true" className="me-5" target="_blank" type="button" variant="warning">Adoptar</Button>
                                 {authData.type === 'employee' && (
-                                    
-                                    <Button
-                                    variant="success"
-                                    >
-                                    Editar
-                                    </Button>,
-                                    
-                                    
-                                    <Button
-                                    variant="danger"
-                                    onClick={() => setShowDeleteModal(true)}
-                                    >
-                                    Eliminar
-                                    </Button>
+                                    <>
+                                        <Button variant="success" className="me-5" onClick={handleOpenEditModal}>
+                                            Editar
+                                        </Button>
+                                        <br></br>
+                                        <Button
+                                            variant="danger"
+                                            onClick={() => setShowDeleteModal(true)}
+                                        >
+                                            Eliminar
+                                        </Button>
+                                    </>
                                 )}
+
                             </div>
                         </Container>
                     </Col>
                 </Row>
             </Container>
+            
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Editar mascota</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                    <Form.Group className="mb-2" controlId="name">
+                        <Form.Label>Nombre</Form.Label>
+                        <Form.Control
+                        type="text"
+                        value={editFormData.name}
+                        onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                        isInvalid={!!validationErrors.name}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.name}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="gender">
+                        <Form.Label>Género</Form.Label>
+                        <Form.Select
+                        value={editFormData.gender}
+                        onChange={(e) => setEditFormData({ ...editFormData, gender: e.target.value })}
+                        isInvalid={!!validationErrors.gender}
+                        >
+                        <option value="">Selecciona</option>
+                        <option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.gender}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="sterilized">
+                        <Form.Label>Esterilizado</Form.Label>
+                        <Form.Select
+                        value={editFormData.sterilized}
+                        onChange={(e) => setEditFormData({ ...editFormData, sterilized: e.target.value })}
+                        isInvalid={!!validationErrors.sterilized}
+                        >
+                        <option value="">Selecciona</option>
+                        <option value="Si">Sí</option>
+                        <option value="No">No</option>
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.sterilized}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="birthdate">
+                        <Form.Label>Fecha de nacimiento</Form.Label>
+                        <Form.Control
+                        type="date"
+                        value={editFormData.birthdate}
+                        onChange={(e) => setEditFormData({ ...editFormData, birthdate: e.target.value })}
+                        isInvalid={!!validationErrors.birthdate}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.birthdate}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="age">
+                        <Form.Label>Edad</Form.Label>
+                        <Form.Control
+                        type="text"
+                        value={editFormData.age}
+                        onChange={(e) => setEditFormData({ ...editFormData, age: e.target.value })}
+                        isInvalid={!!validationErrors.age}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.age}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="color">
+                        <Form.Label>Color</Form.Label>
+                        <Form.Control
+                        type="text"
+                        value={editFormData.color}
+                        onChange={(e) => setEditFormData({ ...editFormData, color: e.target.value })}
+                        isInvalid={!!validationErrors.color}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.color}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="weight">
+                        <Form.Label>Peso</Form.Label>
+                        <Form.Control
+                        type="number"
+                        value={editFormData.weight}
+                        onChange={(e) => setEditFormData({ ...editFormData, weight: e.target.value })}
+                        isInvalid={!!validationErrors.weight}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.weight}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="size">
+                        <Form.Label>Tamaño</Form.Label>
+                        <Form.Select
+                        value={editFormData.size}
+                        onChange={(e) => setEditFormData({ ...editFormData, size: e.target.value })}
+                        isInvalid={!!validationErrors.size}
+                        >
+                        <option value="">Selecciona</option>
+                        <option value="Pequeño">Pequeño</option>
+                        <option value="Mediano">Mediano</option>
+                        <option value="Grande">Grande</option>
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.size}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="editHealth">
+                        <Form.Label>Salud</Form.Label>
+                        <Form.Select
+                            name="health"
+                            value={editFormData.health}
+                            onChange={(e) => setEditFormData({ ...editFormData, health: e.target.value })}
+                            isInvalid={!!validationErrors.health}
+                        >
+                            <option value="">Selecciona una opción</option>
+                            <option value="Mala">Mala</option>
+                            <option value="Regular">Regular</option>
+                            <option value="Buena">Buena</option>
+                            <option value="Excelente">Excelente</option>
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                            {validationErrors.health}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-2" controlId="description">
+                        <Form.Label>Descripción</Form.Label>
+                        <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={editFormData.description}
+                        onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                        isInvalid={!!validationErrors.description}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                        {validationErrors.description}
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                    Cancelar
+                    </Button>
+                    <Button variant="success" onClick={handleEditarAnimal}>
+                    Guardar cambios
+                    </Button>
+                </Modal.Footer>
+                </Modal>
+
+
+
+            
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirmar eliminación</Modal.Title>
