@@ -341,7 +341,7 @@ function VerMascota() {
                                 <p className='lead'>Sexo: {mascota.gender}</p>
                                 <p className='lead'>Esta esterilizado: {mascota.sterilized}</p>
                                 <p className='lead'>Fecha de Nacimiento: {mascota.birthdate}</p>
-                                <p className='lead'>Edad: {mascota.age}</p>
+                                <p className='lead'>Edad en años: {mascota.age}</p>
                                 <p className='lead'>Color: {mascota.color}</p>
                                 <p className='lead'>Peso: {mascota.weight}</p>
                                 <p className='lead'>Tamaño: {mascota.size}</p>
