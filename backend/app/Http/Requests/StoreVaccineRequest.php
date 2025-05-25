@@ -25,7 +25,7 @@ class StoreVaccineRequest extends FormRequest
             // 'animal_id' => 'required|exists:animals,id',
             'vaccine_brand' => 'required|string|max:255',
             'vaccine_type' => 'required|string|max:255',
-            'vaccine_batch' => 'nullable|string|max:255',
+            'vaccine_batch' => 'required|string|max:255',
             'application_date' => 'required|date|before_or_equal:today',
             'doctor_name' => 'required|string|max:255',
             'doctor_license' => 'required|string|max:255',
