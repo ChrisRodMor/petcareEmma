@@ -295,14 +295,15 @@ function VerMascota() {
                     <Col md={3} className='me-5 mb-3'>
                         <ClientCardProfile name={mascota.name} file_path={`http://127.0.0.1:8000/${mascota.file_path}`} />
                         <Container className="bg-white p-5 rounded shadow">
-                            {vacunaActual && (
-                                <div>
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                        <p className="h3">Vacunas</p>
-                                        {authData.type === 'employee' && (
-                                            <Button variant="outline-dark" size="sm" onClick={() => setShowVaccineModal(true)}>+</Button>
-                                        )}
-                                    </div>
+                            <div>
+                                <div className="d-flex justify-content-between align-items-center mb-3">
+                                    <p className="h3 mb-0">Vacunas</p>
+                                    {authData.type === 'employee' && (
+                                        <Button variant="outline-dark" size="sm" onClick={() => setShowVaccineModal(true)}>+</Button>
+                                    )}
+                                </div>
+
+                                {vacunaActual ? (
                                     <div>
                                         <p>Marca: {vacunaActual.vaccine_brand}</p>
                                         <p>Tipo: {vacunaActual.vaccine_type}</p>
@@ -310,19 +311,23 @@ function VerMascota() {
                                         <p>Fecha de Aplicación: {vacunaActual.application_date}</p>
                                         <p>Nombre del Doctor: {vacunaActual.doctor_name}</p>
                                         <p>Licencia del Doctor: {vacunaActual.doctor_license}</p>
+
+                                        {vacunas.length > 1 && (
+                                            <div>
+                                                <Button variant="light" onClick={handlePrevVacuna} disabled={currentVacunaIndex === 0}>
+                                                    &#8249; Anterior
+                                                </Button>
+                                                <Button variant="light" onClick={handleNextVacuna} disabled={currentVacunaIndex === vacunas.length - 1}>
+                                                    Siguiente &#8250;
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
-                                    {vacunas.length > 1 && (
-                                        <div>
-                                            <Button variant="light" onClick={handlePrevVacuna} disabled={currentVacunaIndex === 0}>
-                                                &#8249; Anterior
-                                            </Button>
-                                            <Button variant="light" onClick={handleNextVacuna} disabled={currentVacunaIndex === vacunas.length - 1}>
-                                                Siguiente &#8250;
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                ) : (
+                                    <p className="text-muted">No hay vacunas registradas para esta mascota.</p>
+                                )}
+                            </div>
+
                         </Container>
                     </Col>
                     <Col md={8} className='mb-3'>
