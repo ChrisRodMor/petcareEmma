@@ -32,6 +32,17 @@ function VerMascota() {
         animal_picture: null
     });
     const [validationErrors, setValidationErrors] = useState({});
+    const [vaccineValidationErrors, setVaccineValidationErrors] = useState({});
+    const [showVaccineModal, setShowVaccineModal] = useState(false);
+    const [vaccineFormData, setVaccineFormData] = useState({
+        vaccine_brand: '',
+        vaccine_type: '',
+        application_date: '',
+        doctor_name: '',
+        doctor_license: '',
+        vaccine_batch: ''
+    });
+
 
 
     const reasons = [
@@ -208,6 +219,50 @@ function VerMascota() {
             });
     };
 
+    const handleAgregarVacuna = async () => {
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+
+        Object.entries(vaccineFormData).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/store-vaccine/${id}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 422 && data.errors) {
+                    setVaccineValidationErrors(data.errors);
+                } else {
+                    throw new Error(data.message || 'Error al registrar la vacuna');
+                }
+                return;
+            }
+
+            setShowVaccineModal(false);
+            setSuccess('Vacuna registrada exitosamente.');
+            setError(null);
+            setVaccineValidationErrors({});
+            setTimeout(() => window.location.reload(), 2000);
+
+        } catch (error) {
+            console.error(error);
+            setError(error.message || 'Error de conexión al servidor');
+            setSuccess(null);
+        }
+    };
+
+
+
 
 
     return (
@@ -229,6 +284,9 @@ function VerMascota() {
                                 <div>
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                         <p className="h3">Vacunas</p>
+                                        {authData.type === 'employee' && (
+                                            <Button variant="outline-dark" size="sm" onClick={() => setShowVaccineModal(true)}>+</Button>
+                                        )}
                                     </div>
                                     <div>
                                         <p>Marca: {vacunaActual.vaccine_brand}</p>
@@ -459,11 +517,8 @@ function VerMascota() {
                     Guardar cambios
                     </Button>
                 </Modal.Footer>
-                </Modal>
+            </Modal>
 
-
-
-            
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirmar eliminación</Modal.Title>
@@ -487,6 +542,100 @@ function VerMascota() {
                     <Button variant="danger" onClick={handleEliminarAnimal}>Confirmar eliminación</Button>
                 </Modal.Footer>
             </Modal>
+
+            <Modal show={showVaccineModal} onHide={() => setShowVaccineModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Agregar Vacuna</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Marca</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={vaccineFormData.vaccine_brand}
+                                onChange={(e) => setVaccineFormData({ ...vaccineFormData, vaccine_brand: e.target.value })}
+                                isInvalid={!!vaccineValidationErrors.vaccine_brand}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {vaccineValidationErrors.vaccine_brand}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Tipo</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={vaccineFormData.vaccine_type}
+                                onChange={(e) => setVaccineFormData({ ...vaccineFormData, vaccine_type: e.target.value })}
+                                isInvalid={!!vaccineValidationErrors.vaccine_type}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {vaccineValidationErrors.vaccine_type}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Lote</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={vaccineFormData.vaccine_batch}
+                                onChange={(e) => setVaccineFormData({ ...vaccineFormData, vaccine_batch: e.target.value })}
+                                isInvalid={!!vaccineValidationErrors.vaccine_batch}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {vaccineValidationErrors.vaccine_batch}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Fecha de aplicación</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={vaccineFormData.application_date}
+                                onChange={(e) => setVaccineFormData({ ...vaccineFormData, application_date: e.target.value })}
+                                isInvalid={!!vaccineValidationErrors.application_date}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {vaccineValidationErrors.application_date}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Nombre del Doctor</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={vaccineFormData.doctor_name}
+                                onChange={(e) => setVaccineFormData({ ...vaccineFormData, doctor_name: e.target.value })}
+                                isInvalid={!!vaccineValidationErrors.doctor_name}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {vaccineValidationErrors.doctor_name}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                        <Form.Group className="mb-2">
+                            <Form.Label>Licencia del Doctor</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={vaccineFormData.doctor_license}
+                                onChange={(e) => setVaccineFormData({ ...vaccineFormData, doctor_license: e.target.value })}
+                                isInvalid={!!vaccineValidationErrors.doctor_license}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {vaccineValidationErrors.doctor_license}
+                            </Form.Control.Feedback>
+                        </Form.Group>
+
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowVaccineModal(false)}>Cancelar</Button>
+                    <Button variant="primary" onClick={handleAgregarVacuna}>Agregar</Button>
+                </Modal.Footer>
+            </Modal>
+
 
         </div>
     );
