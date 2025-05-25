@@ -261,6 +261,21 @@ function VerMascota() {
         }
     };
 
+    function calcularEdad(fechaNacimiento) {
+        const hoy = new Date();
+        const nacimiento = new Date(fechaNacimiento);
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const mes = hoy.getMonth() - nacimiento.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+            edad--;
+        }
+
+        return edad >= 0 ? edad : 0;
+    }
+
+
+
 
 
 
@@ -409,28 +424,58 @@ function VerMascota() {
                     <Form.Group className="mb-2" controlId="birthdate">
                         <Form.Label>Fecha de nacimiento</Form.Label>
                         <Form.Control
-                        type="date"
-                        value={editFormData.birthdate}
-                        onChange={(e) => setEditFormData({ ...editFormData, birthdate: e.target.value })}
-                        isInvalid={!!validationErrors.birthdate}
+                            type="date"
+                            value={editFormData.birthdate}
+                            max={new Date().toISOString().split('T')[0]} // Limita selección a hoy o antes
+                            onChange={(e) => {
+                                const nuevaFecha = e.target.value;
+                                const hoy = new Date().toISOString().split('T')[0];
+                                
+                                if (nuevaFecha > hoy) {
+                                    setValidationErrors({
+                                        ...validationErrors,
+                                        birthdate: 'La fecha no puede ser futura.'
+                                    });
+                                    setEditFormData({
+                                        ...editFormData,
+                                        birthdate: nuevaFecha,
+                                        age: ''
+                                    });
+                                } else {
+                                    const edadCalculada = calcularEdad(nuevaFecha);
+                                    setValidationErrors({
+                                        ...validationErrors,
+                                        birthdate: null
+                                    });
+                                    setEditFormData({
+                                        ...editFormData,
+                                        birthdate: nuevaFecha,
+                                        age: `${edadCalculada} años`
+                                    });
+                                }
+                            }}
+                            isInvalid={!!validationErrors.birthdate}
                         />
                         <Form.Control.Feedback type="invalid">
-                        {validationErrors.birthdate}
+                            {validationErrors.birthdate}
                         </Form.Control.Feedback>
                     </Form.Group>
+
+
 
                     <Form.Group className="mb-2" controlId="age">
                         <Form.Label>Edad</Form.Label>
                         <Form.Control
-                        type="text"
-                        value={editFormData.age}
-                        onChange={(e) => setEditFormData({ ...editFormData, age: e.target.value })}
-                        isInvalid={!!validationErrors.age}
+                            type="text"
+                            value={editFormData.age}
+                            disabled
+                            isInvalid={!!validationErrors.age}
                         />
                         <Form.Control.Feedback type="invalid">
-                        {validationErrors.age}
+                            {validationErrors.age}
                         </Form.Control.Feedback>
                     </Form.Group>
+
 
                     <Form.Group className="mb-2" controlId="color">
                         <Form.Label>Color</Form.Label>
