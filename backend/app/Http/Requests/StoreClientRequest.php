@@ -34,7 +34,7 @@ class StoreClientRequest extends FormRequest
                 'regex:/^.*(?=.{1,})(?=.*[A-Z])(?=.*[0-9])(?=.*[!$#%*]).*$/',
                 'confirmed',
                 'min:8'],
-
+            'password_confirmation' => 'required|string',
             'phone' => ['required', 'numeric', 'digits:10'],
             'birthdate' => ['required', 'date', 'before:-17 years','after:1900-01-01'],
             'address' =>['required', 'string'],
@@ -47,6 +47,7 @@ class StoreClientRequest extends FormRequest
             'name' => 'nombre',
             'email' => 'correo electrónico',
             'password' => 'contraseña',
+            'password_confirmation' => 'confirmación de contraseña',
             'phone' => 'teléfono',
             'birthdate' => 'fecha de nacimiento',
             'address' => 'dirección',
