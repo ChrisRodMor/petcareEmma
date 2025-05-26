@@ -29,7 +29,7 @@ class UserFactory extends Factory
             //'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'phone'=> fake()->phoneNumber(),
+            'phone' => $this->faker->numerify('##########'),
             'birthdate' => fake()->date(),
             'address'=>fake()->address(),
             'file_path'=>'profile_pictures/default.jpg',
