@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Navbarcliente from './Navbarcliente';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Form, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';

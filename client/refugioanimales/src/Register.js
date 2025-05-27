@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Form, Container, InputGroup, Modal } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -38,8 +38,8 @@ function Register() {
 
     const axiosInstance = axios.create({
         baseURL: 'http://127.0.0.1:8000/api',
-         headers: { 'Content-Type': 'application/json' }
-     });
+        headers: { 'Content-Type': 'application/json' }
+    });
 
     const csrfAxiosInstance = axios.create({ baseURL: 'http://127.0.0.1:8000' });
 

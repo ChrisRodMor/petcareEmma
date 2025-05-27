@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React from 'react';
 import Register from './Register';
 import Login from './Login';
 import Inicio from './Inicio';
@@ -10,6 +9,7 @@ import AgregarAnimal from './AgregarAnimal';
 import VerMascota from './VerMascota';
 import VerCliente from './VerCliente';
 import Reportes from './Reportes';
+import Dashboard from './Dashboard';
 import Contactanos from './Contactanos';
 import Clientes from './Clientes';
 import Donaciones from './Donaciones';
@@ -32,6 +32,7 @@ function App() {
                   <Route path="/agregaranimal" element={<ProtectedRoute element={<AgregarAnimal />} />} />
                   <Route path="/adoptar/:id" element={<ProtectedRoute element={<VerMascota />} />} />
                   <Route path="/reportes" element={<ProtectedRoute element={<Reportes />} />} />
+                  <Route path="/control" element={<ProtectedRoute element={<Dashboard />} />} />
                   <Route path="/nuevoreporte" element={<ProtectedRoute element={<NuevoReporte />} />} />
                   <Route path="/reporteadopcion" element={<ProtectedRoute element={<ReporteAdopcion />} />} />
                   <Route path="/contactanos" element={<ProtectedRoute element={<Contactanos />} />} />
