@@ -14,6 +14,8 @@ function Configuracion() {
     const [modalMessage, setModalMessage] = useState('');
     const [operationSuccess, setOperationSuccess] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
+    const [previewUrl, setPreviewUrl] = useState(null);
+
 
     const formatValidationErrors = (errors) => {
     return (
@@ -70,7 +72,18 @@ function Configuracion() {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setProfilePicture(file);
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result); // guarda la vista previa
+            };
+            reader.readAsDataURL(file); // convierte archivo en base64
+        } else {
+            setPreviewUrl(null); // limpia la vista previa si se borra
+        }
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -154,6 +167,18 @@ function Configuracion() {
                         <Col md={3} className='me-5 mb-3'>
                             <ClientCardProfile name={authData.name} file_path={`http://127.0.0.1:8000/${authData.file_path}`} />
                             <input type="file" className="form-control" id="profilePicture" onChange={handleFileChange} />
+                            {previewUrl && (
+                                <div className="mt-3 text-center">
+                                    <p className="text-muted">Vista previa de la nueva imagen</p>
+                                    <img
+                                        src={previewUrl}
+                                        alt="Vista previa"
+                                        className="img-thumbnail"
+                                        style={{ maxWidth: '100%', height: 'auto' }}
+                                    />
+                                </div>
+                            )}
+
                         </Col>
                         <Col md={8} className='mb-3'>
                             <Container className="bg-white p-5 rounded shadow">
