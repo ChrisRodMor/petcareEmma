@@ -299,7 +299,7 @@ function VerMascota() {
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <p className="h3 mb-0">Vacunas</p>
                                     {authData.type === 'employee' && (
-                                        <Button variant="outline-dark" size="sm" onClick={() => setShowVaccineModal(true)}>+</Button>
+                                        <Button variant="warning" size="sm" onClick={() => setShowVaccineModal(true)}>+</Button>
                                     )}
                                 </div>
 
@@ -314,10 +314,10 @@ function VerMascota() {
 
                                         {vacunas.length > 1 && (
                                             <div>
-                                                <Button variant="light" onClick={handlePrevVacuna} disabled={currentVacunaIndex === 0}>
+                                                <Button variant="warning" onClick={handlePrevVacuna} disabled={currentVacunaIndex === 0}>
                                                     &#8249; Anterior
                                                 </Button>
-                                                <Button variant="light" onClick={handleNextVacuna} disabled={currentVacunaIndex === vacunas.length - 1}>
+                                                <Button variant="warning" onClick={handleNextVacuna} disabled={currentVacunaIndex === vacunas.length - 1}>
                                                     Siguiente &#8250;
                                                 </Button>
                                             </div>
@@ -351,7 +351,7 @@ function VerMascota() {
 
                             <div className='d-flex justify-content-center'>
                                 <Link to='/adoptar'>
-                                    <Button type="button" variant="btn btn-outline-warning btn-block" className='me-5'>Regresar</Button>
+                                    <Button type="button" variant="warning" className='me-5'>Regresar</Button>
                                 </Link>
                                 <Button href="https://docs.google.com/forms/d/e/1FAIpQLScl546kYHW1Jlz8lb2Fiaq74cIeLXiF2OEi6X0XszkyagsTTw/viewform?embedded=true" className="me-5" target="_blank" type="button" variant="warning">Adoptar</Button>
                                 {authData.type === 'employee' && (
@@ -560,10 +560,10 @@ function VerMascota() {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                    <Button variant="warning" onClick={() => setShowEditModal(false)}>
                     Cancelar
                     </Button>
-                    <Button variant="success" onClick={handleEditarAnimal}>
+                    <Button variant="warning" onClick={handleEditarAnimal}>
                     Guardar cambios
                     </Button>
                 </Modal.Footer>
@@ -588,7 +588,7 @@ function VerMascota() {
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancelar</Button>
+                    <Button variant="warning" onClick={() => setShowDeleteModal(false)}>Cancelar</Button>
                     <Button variant="danger" onClick={handleEliminarAnimal}>Confirmar eliminación</Button>
                 </Modal.Footer>
             </Modal>
@@ -681,8 +681,8 @@ function VerMascota() {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowVaccineModal(false)}>Cancelar</Button>
-                    <Button variant="primary" onClick={handleAgregarVacuna}>Agregar</Button>
+                    <Button variant="warning" onClick={() => setShowVaccineModal(false)}>Cancelar</Button>
+                    <Button variant="warning" onClick={handleAgregarVacuna}>Agregar</Button>
                 </Modal.Footer>
             </Modal>
 

@@ -353,7 +353,7 @@ function NuevoReporte() {
               <div className="row">
                 <div className="col-md-12 text-center">
                   <Link to="/reportes">
-                    <Button variant="outline-warning" className="btn-block" style={{ marginRight: '5%' }}>Regresar</Button>
+                    <Button variant="warning" style={{ marginRight: '5%' }}>Regresar</Button>
                   </Link>
                   <Button type="submit" variant="warning">Guardar</Button>
                 </div>

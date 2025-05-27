@@ -212,7 +212,7 @@ function Register() {
 
                             <div className="text-center mt-3">
                                 <Link to='/login'>
-                                    <button type="button" className="btn btn-outline-warning btn-sm btn-block" style={{ marginRight: '5%' }}>Cancelar</button>
+                                    <button type="button" className="btn btn-warning btn-sm btn-block" style={{ marginRight: '5%' }}>Cancelar</button>
                                 </Link>
                                 <button type="submit" className="btn btn-warning btn-sm btn-block">Aceptar</button>
 

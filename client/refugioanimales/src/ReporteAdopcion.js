@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import Navbarcliente from './Navbarcliente';
+import Navbaremployee from './Navbaremployee';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -116,7 +117,7 @@ function ReporteAdopcion() {
 
   return (
     <div>
-      <Navbarcliente />
+      {authData.type === 'employee' ? <Navbaremployee /> : <Navbarcliente />}
       <Container className="mb-5">
         <div className="mt-5 d-flex mb-5">
           <div className="me-auto">
@@ -235,7 +236,7 @@ function ReporteAdopcion() {
 
               <div className="col-md-12 text-center">
                 <Link to="/reportes">
-                  <Button variant="outline-warning" className="btn-block" style={{ marginRight: '5%' }}>
+                  <Button variant="warning" style={{ marginRight: '5%' }}>
                     Regresar
                   </Button>
                 </Link>

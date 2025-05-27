@@ -70,7 +70,7 @@ function VerCliente() {
                             </div>
 
                             <div className='d-flex justify-content-center'>
-                                <Link to='/clientes'><Button type="button" variant="btn btn-outline-warning btn-block">Regresar</Button></Link>
+                                <Link to='/clientes'><Button type="button" variant="warning">Regresar</Button></Link>
                             </div>
                         </Container>
                     </Col>
