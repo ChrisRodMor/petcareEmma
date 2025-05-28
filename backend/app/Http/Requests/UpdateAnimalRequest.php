@@ -27,10 +27,10 @@ class UpdateAnimalRequest extends FormRequest
             'name' => 'string|max:255',
             'gender' => 'in:Hembra,Macho',
             'sterilized' => 'in:Si,No',
-            'birthdate' => 'nullable|date',
+            'birthdate' => 'nullable|date|before_or_equal:today',
             'age' => 'nullable|string|max:255',
             'color' => 'string|max:255',
-            'weight' => 'nullable|numeric|min:0',
+            'weight' => 'numeric|min:0.1',
             'size' => 'in:Pequeño,Mediano,Grande',
             'health' => 'in:Mala,Regular,Buena,Excelente',
             'description' => 'string',
@@ -45,7 +45,7 @@ class UpdateAnimalRequest extends FormRequest
             'name' => 'nombre',
             'gender' => 'genero',
             'sterilized' => 'esterilizado',
-            'birthdate' => 'fecha_nacimiento',
+            'birthdate.after_or_equal' => 'La :attribute no puede ser anterior a hoy.',
             'age' => 'edad',
             'color' => 'color',
             'weight' => 'peso',
@@ -69,6 +69,7 @@ class UpdateAnimalRequest extends FormRequest
             'in' => 'El campo :attribute debe contener un dato válido: :values.',
             'string'=> 'El campo :attribute deben ser caracteres',
             'date' => 'El campo :attribute debe ser una fecha valida.',
+            'birthdate.before_or_equal'=> 'La fecha de :attribute no puede ser posterior a hoy.',
         ];
     }
 }
