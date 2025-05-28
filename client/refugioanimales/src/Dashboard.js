@@ -89,11 +89,18 @@ function Dashboard() {
             <Row className="align-items-stretch">
               <Col md={6} className="mb-4">
                 <h5 className="text-center">Animales por Tipo</h5>
+                <p className="text-center text-muted">
+                  Total registrados: {animalData.total_active}
+                </p>
                 <div style={{ height: '300px' }}>
                   <Bar
                     data={{
                       labels: animalData.by_type.labels,
-                      datasets: [{ label: 'Cantidad', data: animalData.by_type.data, backgroundColor: 'rgba(75,192,192,0.5)' }],
+                      datasets: [{
+                        label: 'Cantidad',
+                        data: animalData.by_type.data,
+                        backgroundColor: 'rgba(75,192,192,0.5)',
+                      }],
                     }}
                     options={chartOptions}
                   />
@@ -106,7 +113,10 @@ function Dashboard() {
                   <Doughnut
                     data={{
                       labels: animalData.by_size.labels,
-                      datasets: [{ data: animalData.by_size.data, backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'] }],
+                      datasets: [{
+                        data: animalData.by_size.data,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                      }],
                     }}
                     options={chartOptions}
                   />
@@ -119,7 +129,10 @@ function Dashboard() {
                   <Doughnut
                     data={{
                       labels: animalData.by_health.labels,
-                      datasets: [{ data: animalData.by_health.data, backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#28a745'] }],
+                      datasets: [{
+                        data: animalData.by_health.data,
+                        backgroundColor: ['#dc3545', '#ffc107', '#17a2b8', '#28a745'],
+                      }],
                     }}
                     options={chartOptions}
                   />
@@ -132,7 +145,11 @@ function Dashboard() {
                   <Bar
                     data={{
                       labels: animalData.by_age.labels,
-                      datasets: [{ label: 'Edad', data: animalData.by_age.data, backgroundColor: 'rgba(153,102,255,0.5)' }],
+                      datasets: [{
+                        label: 'Edad',
+                        data: animalData.by_age.data,
+                        backgroundColor: 'rgba(153,102,255,0.5)',
+                      }],
                     }}
                     options={chartOptions}
                   />
@@ -141,12 +158,19 @@ function Dashboard() {
 
               <Col md={6} className="mb-4">
                 <h5 className="text-center">Animales Eliminados</h5>
+                <p className="text-center text-muted">
+                  Total eliminados: {animalData.deletions?.total_deletions}
+                </p>
                 <div style={{ height: '300px' }}>
-                  {animalData.deletions && animalData.deletions.data.length > 0 ? (
+                  {animalData.deletions?.data.length > 0 ? (
                     <Bar
                       data={{
                         labels: animalData.deletions.labels,
-                        datasets: [{ data: animalData.deletions.data, backgroundColor: 'rgba(255,99,132,0.5)' }],
+                        datasets: [{
+                          data: animalData.deletions.data,
+                          label: 'Eliminados',
+                          backgroundColor: 'rgba(255,99,132,0.5)',
+                        }],
                       }}
                       options={chartOptions}
                     />
@@ -158,14 +182,21 @@ function Dashboard() {
 
               <Col md={6} className="mb-4">
                 <h5 className="text-center">Ingresos de Animales</h5>
-                {animalData.income && animalData.income.datasets.length > 0 ? (
+                <p className="text-center text-muted">
+                  Total ingresos: {animalData.income?.total_animals}
+                </p>
+                {animalData.income?.datasets.length > 0 ? (
                   animalData.income.datasets.map((dataset, index) => (
                     <div key={index} className="mb-3" style={{ height: '300px' }}>
                       <h6 className="text-center">Año {dataset.year}</h6>
                       <Bar
                         data={{
                           labels: dataset.labels,
-                          datasets: [{ data: dataset.data, label: 'Ingresos', backgroundColor: 'rgba(54,162,235,0.5)' }],
+                          datasets: [{
+                            data: dataset.data,
+                            label: 'Ingresos',
+                            backgroundColor: 'rgba(54,162,235,0.5)',
+                          }],
                         }}
                         options={chartOptions}
                       />
@@ -178,29 +209,45 @@ function Dashboard() {
 
               <Col md={6} className="mb-4">
                 <h5 className="text-center">Adopciones</h5>
-                <div style={{ height: '300px' }}>
-                  {animalData.adoptions && animalData.adoptions.datasets.length > 0 ? (
-                    <Bar
-                      data={{
-                        labels: animalData.adoptions.labels,
-                        datasets: animalData.adoptions.datasets,
-                      }}
-                      options={chartOptions}
-                    />
-                  ) : (
-                    <p className="text-center text-muted">No hay adopciones registradas.</p>
-                  )}
-                </div>
+                <p className="text-center text-muted">
+                  Total adopciones: {animalData.adoptions?.total_adoptions}
+                </p>
+                {animalData.adoptions?.datasets.length > 0 ? (
+                  animalData.adoptions.datasets.map((dataset, index) => (
+                    <div key={index} className="mb-3" style={{ height: '300px' }}>
+                      <h6 className="text-center">Año {dataset.year}</h6>
+                      <Bar
+                        data={{
+                          labels: dataset.labels,
+                          datasets: [{
+                            label: 'Adopciones',
+                            data: dataset.data,
+                            backgroundColor: 'rgba(255, 206, 86, 0.6)',
+                          }]
+                        }}
+                        options={chartOptions}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-muted">No hay adopciones registradas.</p>
+                )}
               </Col>
 
               <Col md={6} className="mb-4">
                 <h5 className="text-center">Reportes</h5>
+                <p className="text-center text-muted">
+                  Total reportes: {animalData.reports?.total_reports}
+                </p>
                 <div style={{ height: '300px' }}>
-                  {animalData.reports && animalData.reports.data.length > 0 ? (
+                  {animalData.reports?.data.length > 0 ? (
                     <Doughnut
                       data={{
                         labels: animalData.reports.labels,
-                        datasets: [{ data: animalData.reports.data, backgroundColor: ['#28a745', '#ffc107'] }],
+                        datasets: [{
+                          data: animalData.reports.data,
+                          backgroundColor: ['#28a745', '#ffc107'],
+                        }],
                       }}
                       options={chartOptions}
                     />
@@ -212,12 +259,18 @@ function Dashboard() {
 
               <Col md={6} className="mb-4">
                 <h5 className="text-center">Mascotas Perdidas</h5>
+                <p className="text-center text-muted">
+                  Total reportes: {animalData.lostPets?.total_reports} – Tasa de recuperación: {animalData.lostPets?.recovery_rate}%
+                </p>
                 <div style={{ height: '300px' }}>
-                  {animalData.lostPets && animalData.lostPets.data.some(val => val > 0) ? (
+                  {animalData.lostPets?.data.some(val => val > 0) ? (
                     <Doughnut
                       data={{
                         labels: animalData.lostPets.labels,
-                        datasets: [{ data: animalData.lostPets.data, backgroundColor: ['#36A2EB', '#FF6384'] }],
+                        datasets: [{
+                          data: animalData.lostPets.data,
+                          backgroundColor: ['#36A2EB', '#FF6384'],
+                        }],
                       }}
                       options={chartOptions}
                     />
