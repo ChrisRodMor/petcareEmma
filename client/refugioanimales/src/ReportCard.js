@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from './AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Badge, Button, Modal, Spinner, Image } from 'react-bootstrap';
+import { Badge, Button, Modal, Spinner } from 'react-bootstrap';
 import { BsCalendarDate } from 'react-icons/bs';
 
 const ReportCard = ({ type, description, status, createdAt, id }) => {
   const [show, setShow] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { authData } = useContext(AuthContext);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -20,6 +25,17 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
         return 'secondary';
     }
   };
+
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        setError(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error]);
+
 
   const handleShow = async () => {
     setShow(true);
@@ -44,6 +60,13 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
       setLoading(false);
     }
   };
+
+  const fetchReportData = async () => {
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+  };
+
 
 
   const handleClose = () => {
@@ -116,10 +139,15 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
             </div>
           ) : reportData ? (
             <>
+              {error && <div className="alert alert-danger">{error}</div>}
+              {success && <div className="alert alert-success">{success}</div>}
+
               <p><strong>Tipo de reporte: </strong> {reportData.type_report}</p>
               <p><strong>ID:</strong> {reportData.id}</p>
               <p><strong>Estado:</strong> {reportData.status}</p>
               <p><strong>Descripción:</strong> {reportData.description}</p>
+
+              {/* Mascota perdida */}
               {reportData.type_report === "MASCOTA_PERDIDA" && reportData.lost_pet_report && (
                 <>
                   <div className="mb-3">
@@ -135,7 +163,7 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
                   <div className="d-flex justify-content-center mb-3">
                     {reportData.lost_pet_report.file_path ? (
                       <img
-                        src={`http://127.0.0.1:8000/${reportData.lost_pet_report.file_path}`}
+                        src={`http://127.0.0.1:8000/storage/${reportData.lost_pet_report.file_path}`}
                         alt="Mascota perdida"
                         style={{ width: '180px', height: '180px', objectFit: 'cover', borderRadius: '0.75rem' }}
                         onError={(e) => {
@@ -147,10 +175,52 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
                       <div style={{ width: '180px', textAlign: 'center' }}>Imagen no localizada</div>
                     )}
                   </div>
+
+                  {/* Botón "Reportar como encontrada" solo para cliente */}
+                  {reportData.lost_pet_report.is_found === 0 && authData.type === 'client' && (
+                    <div className="text-center mt-3">
+                      <Button
+                        variant="success"
+                        onClick={async () => {
+                          const token = localStorage.getItem('token');
+                          try {
+                            const res = await fetch(
+                              `http://127.0.0.1:8000/api/lost-pet-status/${reportData.id}`,
+                              {
+                                method: 'POST',
+                                headers: {
+                                  Authorization: `Bearer ${token}`,
+                                },
+                              }
+                            );
+                            if (!res.ok) throw new Error('Error en la petición');
+
+                            setReportData(prev => ({
+                              ...prev,
+                              lost_pet_report: {
+                                ...prev.lost_pet_report,
+                                is_found: 1,
+                              },
+                            }));
+                            setSuccess('Mascota reportada como encontrada');
+                            setError(null);
+                            await fetchReportData();
+                          } catch (err) {
+                            console.error(err);
+                            setError('No se pudo actualizar el estado');
+                            setSuccess(null);
+                          }
+
+                        }}
+                      >
+                        Reportar como encontrada
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
 
-
+              {/* Adopción */}
               {reportData.type_report === "ADOPCION" && reportData.adoption_report && (
                 <>
                   <div className="mb-3">
@@ -185,19 +255,66 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
                 </>
               )}
 
-
-              {reportData.type_report === "MALTRATO" && reportData.abuse_report && (
+              {/* Maltrato - solo admin/employee y si no está terminado */}
+              {reportData.type_report === 'MALTRATO' && reportData.abuse_report && (
                 <>
-                  <p><strong>Dirección del evento:</strong> {reportData.abuse_report.direction_event}</p>
-                  <p><strong>Fecha del evento:</strong> {reportData.abuse_report.date_event}</p>
-                  <p><strong>Hora del evento:</strong> {reportData.abuse_report.hour_event}</p>
+                  <div className="mb-3">
+                    <p><strong>Dirección del evento:</strong> {reportData.abuse_report.direction_event}</p>
+                    <p><strong>Fecha del evento:</strong> {reportData.abuse_report.date_event}</p>
+                    <p><strong>Hora del evento:</strong> {reportData.abuse_report.hour_event}</p>
+                  </div>
+
+                  {reportData.status !== 'Terminado' &&
+                    (authData.type === 'admin' || authData.type === 'employee') && (
+                    <div className="mt-4">
+                      <h6>Actualizar estado del reporte</h6>
+                      <select
+                        className="form-select mb-2"
+                        value={reportData.status}
+                        onChange={async (e) => {
+                          const newStatus = e.target.value;
+                          const token = localStorage.getItem('token');
+                          const formData = new FormData();
+                          formData.append('status', newStatus);
+
+                          try {
+                            const res = await fetch(`http://127.0.0.1:8000/api/report-update-status/${reportData.id}`, {
+                              method: 'POST',
+                              headers: {
+                                'Authorization': `Bearer ${token}`,
+                              },
+                              body: formData
+                            });
+
+                            if (!res.ok) throw new Error('No se pudo actualizar');
+
+                            setReportData(prev => ({ ...prev, status: newStatus }));
+                            setSuccess('Estado actualizado correctamente');
+                            setError(null);
+                            await fetchReportData();
+                          } catch (err) {
+                            console.error(err);
+                            setError('Error al actualizar estado');
+                            setSuccess(null);
+                          }
+
+                        }}
+                      >
+                        <option value="Revisando">Revisando</option>
+                        <option value="Avanzando">Avanzando</option>
+                        <option value="Terminado">Terminado</option>
+                      </select>
+                    </div>
+                  )}
                 </>
               )}
+
             </>
           ) : (
             <p>No se pudo cargar la información.</p>
           )}
         </Modal.Body>
+
         <Modal.Footer>
           <Button variant="warning" onClick={handleClose}>
             Cerrar
