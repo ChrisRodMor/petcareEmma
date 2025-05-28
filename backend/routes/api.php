@@ -52,17 +52,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/delete-animals/{id}', [AnimalDeletionController::class, 'store']);
 
     //reportes
-    Route::post('/report-update-status/{report}',[ReportController::class, 'updateStatus']);
-    Route::get('/user-reports', [ReportController::class, 'getReports']);
-    Route::get('/reports', [ReportController::class, 'index']);
-    Route::get('/report/{report}', [ReportController::class, 'show']);
+    
+    Route::get('/reports', [ReportController::class, 'index']);// Listar todos los reportes
+    Route::get('/user-reports', [ReportController::class, 'getReports']); // Listar reportes del usuario autenticado
+    Route::get('/report/{report}', [ReportController::class, 'show']);   // Ver un reporte específico
+    Route::get('/lost-pets',[LostPetReportController::class,'index']); // Listar reportes de mascotas perdidas
 
-    Route::post('/store-abuse-report',[AbuseReportController::class,'store']);
+    Route::post('/store-abuse-report',[AbuseReportController::class,'store']); // Registrar un reporte de abuso
+    Route::post('/store-adoption-report',[AdoptionReportController::class,'store']); // Registrar un reporte de adopción
+    Route::post('/store-lost-pet',[LostPetReportController::class,'store']); // Registrar un reporte de mascota perdida
 
-    Route::post('/store-adoption-report',[AdoptionReportController::class,'store']);
-
-    Route::post('/store-lost-pet',[LostPetReportController::class,'store']);
-    Route::get('/lost-pets',[LostPetReportController::class,'index']);
+    Route::post('/report-update-status/{report}',[ReportController::class, 'updateStatus']); // Actualizar el estado de un reporte
     Route::post('/lost-pet-status/{idReport}',[LostPetReportController::class,'updateStatus']);
 
     //dashboard

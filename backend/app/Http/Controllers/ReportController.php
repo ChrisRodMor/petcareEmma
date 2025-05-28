@@ -53,27 +53,53 @@ class ReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Report $report)
+    public function show($id)
     {
-        
-        // Obtener el tipo de reporte
-        $typeReport = $report->type_report;
-
-        // Definir las relaciones a cargar según el tipo de reporte
-        $relations = [];
-        if ($typeReport === 'ADOPCION') {
-            $relations[] = 'adoptionReport';
-        } elseif ($typeReport === 'MASCOTA_PERDIDA') {
-            $relations[] = 'lostPetReport';
-        } elseif ($typeReport === 'MALTRATO') {
-            $relations[] = 'abuseReport';
+        // 1. Verificar existencia del reporte
+        $report = Report::find($id);
+        if (! $report) {
+            return response()->json([
+                'message' => 'El reporte ingresado no existe'
+            ], 400);
         }
 
-        // Cargar las relaciones correspondientes usando with()
-        $report = Report::with($relations)->find($report->id);
+        // 2. Relaciones base que siempre queremos
+        $relations = ['user']; // por ejemplo quién creó el report
 
-        // Retornar una respuesta JSON con los datos del reporte y su información adicional
-        return response()->json(['data' => $report], 200);
+        // 3. Añadir relaciones específicas según tipo
+        switch ($report->type_report) {
+            case 'ADOPCION':
+                $relations = array_merge($relations, [
+                    'adoptionReport',
+                    'adoptionReport.animal',
+                    'adoptionReport.animal.type',
+                    'adoptionReport.animal.breed',
+                ]);
+                break;
+
+            case 'MASCOTA_PERDIDA':
+                $relations = array_merge($relations, [
+                    'lostPetReport',
+                    'lostPetReport.type',
+                    'lostPetReport.breed',
+                ]);
+                break;
+
+            case 'MALTRATO':
+                $relations = array_merge($relations, [
+                    'abuseReport',
+                    // otras relaciones internas de abuseReport si existen
+                ]);
+                break;
+        }
+
+        // 4. Eager‐load todas las relaciones
+        $report->load($relations);
+
+        // 5. Responder con todo el grafo de datos
+        return response()->json([
+            'data' => $report
+        ], 200);
     }
 
 

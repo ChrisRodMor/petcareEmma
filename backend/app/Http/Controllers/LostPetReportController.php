@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LostPetReport;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreLostPetReportRequest;
 use App\Http\Requests\UpdateLostPetReportStatusRequest;
@@ -13,14 +14,24 @@ class LostPetReportController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        // Obtener todos los reportes de mascotas perdidas donde is_found es false
-        $lostPetReports = LostPetReport::where('is_found', false)->get();
+        // Obtener todos los reportes de mascotas perdidas sin recuperar,
+        // cargando también las relaciones report (y su user), type y breed
+        $lostPetReports = LostPetReport::with([
+                'report.user',   // quien creó el reporte
+                'type',          // la especie de la mascota
+                'breed'          // la raza de la mascota
+            ])
+            ->where('is_found', false)
+            ->get();
 
-        // Retornar una respuesta JSON con los reportes encontrados
-        return response()->json(['data' => $lostPetReports], 200);
+        return response()->json([
+            'data' => $lostPetReports
+        ], 200);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -98,28 +109,42 @@ class LostPetReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function updateStatus(UpdateLostPetReportStatusRequest  $request, $idReport)
+ public function updateStatus($idReport)
     {
-        // 1. Intentar recuperar el reporte
-    $lostPetReport = LostPetReport::find($idReport);
+        // 1. Recuperar el Report por su ID
+        $report = Report::find($idReport);
+        if (! $report) {
+            return response()->json([
+                'message' => 'El reporte ingresado no existe.'
+            ], 400);
+        }
 
-    // 2. Si no existe, devolver 404
-    if (! $lostPetReport) {
+        // 2. Recuperar el reporte de mascota perdida asociado
+        $lostPetReport = LostPetReport::where('report_id', $idReport)->first();
+        if (! $lostPetReport) {
+            return response()->json([
+                'message' => 'El reporte de mascota perdida no existe.'
+            ], 404);
+        }
+
+        // 3. Marcar el Report principal como "Terminado"
+        $report->update([
+            'status' => 'Terminado',
+        ]);
+
+        // 4. Marcar la mascota como encontrada
+        $lostPetReport->update([
+            'is_found' => true,
+        ]);
+
+        // 5. Responder con ambas entidades ya actualizadas
         return response()->json([
-            'message' => 'El reporte de mascota perdida no existe.'
-        ], 404);
-    }
-
-    // 3. Actualizar sólo el campo is_found (su validación ya viene en el Form Request)
-    $lostPetReport->update([
-        'is_found' => $request->input('is_found'),
-    ]);
-
-    // 4. Devolver la entidad fresca
-    return response()->json([
-        'message' => 'El estado del reporte de mascota perdida ha sido actualizado correctamente.',
-        'data'    => $lostPetReport->fresh(),
-    ], 200);
+            'message' => 'El reporte ha sido finalizado y la mascota marcada como encontrada.',
+            'data'    => [
+                'report'          => $report->fresh(),
+                'lost_pet_report' => $lostPetReport->fresh(),
+            ],
+        ], 200);
     }
     /**
      * Calcula y retorna la tasa de recuperación de mascotas perdidas,
