@@ -25,7 +25,7 @@ class StoreLostPetReportRequest extends FormRequest
             'description' => 'required|string',
             'type_id' => 'required|exists:types,id',
             'breed_id' => 'required|exists:breeds,id',
-            'date_event' => 'required|date',
+            'date_event' => 'required|date|before_or_equal:today',
             'pet_name' => 'required|string|max:255',
             'pet_gender' => 'required|in:Macho,Hembra',
             'pet_color' => 'required|string|max:255',
@@ -59,6 +59,8 @@ class StoreLostPetReportRequest extends FormRequest
             'image' => 'El archivo del campo :attribute debe ser una imagen.',
             'mimes' => 'El campo :attribute debe ser un archivo de tipo: :values.',
             'animal_picture.max' => 'La imagen no debe pesar más de 2MB.',
+            'date_event.before_or_equal'=> 'La fecha de :attribute no puede ser posterior a hoy.',
+
         ];
     }
 }

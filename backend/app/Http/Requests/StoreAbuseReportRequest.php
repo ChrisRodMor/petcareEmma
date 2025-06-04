@@ -24,7 +24,7 @@ class StoreAbuseReportRequest extends FormRequest
         return [
             'description' => 'required|string',
             'direction_event' => 'required|string',
-            'date_event' => 'required|date',
+            'date_event' => 'required|date|before_or_equal:today',
             'hour_event' => 'required|date_format:H:i:s',
         ];
     }
@@ -52,6 +52,8 @@ class StoreAbuseReportRequest extends FormRequest
             'string' => 'El campo :attribute debe ser una cadena de texto.',
             'date' => 'El campo :attribute debe ser una fecha válida.',
             'date_format' => 'El campo :attribute debe tener el formato correcto (HH:MM:SS).',
+            'date_event.before_or_equal'=> 'La fecha de :attribute no puede ser posterior a hoy.',
+
         ];
     }
 

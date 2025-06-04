@@ -187,12 +187,15 @@ class AnimalController extends Controller
 
     public function animalsCounts(Request $request)
     {
-        // Total de animales activos (no soft-deleted)
-        $totalActive = Animal::whereNull('deleted_at')->count();
+        // Total de animales activos y no adoptados
+        $totalActive = Animal::whereNull('deleted_at')
+            ->where('is_adopted', false)
+            ->count();
 
-        // Por especie (type)
+        // Por especie (type) — solo activos y no adoptados
         $rawByType = Animal::select('type_id', DB::raw('COUNT(*) as total'))
             ->whereNull('deleted_at')
+            ->where('is_adopted', false)
             ->groupBy('type_id')
             ->with('type:id,name')
             ->get();
@@ -202,7 +205,7 @@ class AnimalController extends Controller
             'data'   => $rawByType->pluck('total')->all(),
         ];
 
-        // Por edad calculada desde birthdate
+        // Por edad calculada desde birthdate — solo activos y no adoptados
         $rawByAge = Animal::select(
                 DB::raw("
                     CASE
@@ -213,6 +216,7 @@ class AnimalController extends Controller
                 DB::raw('COUNT(*) as total')
             )
             ->whereNull('deleted_at')
+            ->where('is_adopted', false)
             ->groupBy('age_label')
             ->orderByRaw("age_label + 0 ASC")
             ->get();
@@ -222,9 +226,10 @@ class AnimalController extends Controller
             'data'   => $rawByAge->pluck('total')->all(),
         ];
 
-        // Por tamaño
+        // Por tamaño — solo activos y no adoptados
         $rawBySize = Animal::select('size', DB::raw('COUNT(*) as total'))
             ->whereNull('deleted_at')
+            ->where('is_adopted', false)
             ->groupBy('size')
             ->get();
 
@@ -233,9 +238,10 @@ class AnimalController extends Controller
             'data'   => $rawBySize->pluck('total')->all(),
         ];
 
-        // Por estado de salud
+        // Por estado de salud — solo activos y no adoptados
         $rawByHealth = Animal::select('health', DB::raw('COUNT(*) as total'))
             ->whereNull('deleted_at')
+            ->where('is_adopted', false)
             ->groupBy('health')
             ->get();
 
@@ -253,6 +259,7 @@ class AnimalController extends Controller
             'by_health'    => $byHealth,
         ], 200);
     }
+
 
     public function incomeSummary(Request $request)
     {
