@@ -163,7 +163,7 @@ const ReportCard = ({ type, description, status, createdAt, id }) => {
                   <div className="d-flex justify-content-center mb-3">
                     {reportData.lost_pet_report.file_path ? (
                       <img
-                        src={`http://127.0.0.1:8000/storage/${reportData.lost_pet_report.file_path}`}
+                        src={`http://127.0.0.1:8000/${reportData.lost_pet_report.file_path}`}
                         alt="Mascota perdida"
                         style={{ width: '180px', height: '180px', objectFit: 'cover', borderRadius: '0.75rem' }}
                         onError={(e) => {

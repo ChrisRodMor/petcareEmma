@@ -17,41 +17,58 @@ function ReporteAdopcion() {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [animales, setAnimales] = useState([]);
   const [animalSeleccionado, setAnimalSeleccionado] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-
-
+  
+  
   const [formData, setFormData] = useState({
     user_id: '',
     animal_id: '',
     description: ''
   });
-
+  
   useEffect(() => {
     if (!authData || !authData.token) return; // Espera a que esté disponible
-
+    
     const fetchData = async () => {
       try {
         const headers = {
           Authorization: `Bearer ${authData.token}`,
           Accept: 'application/json',
         };
-
+        
         const [clientesRes, animalesRes] = await Promise.all([
           axios.get('http://127.0.0.1:8000/api/clients', { headers }),
           axios.get('http://127.0.0.1:8000/api/animals', { headers }),
         ]);
-
+        
         setClientes(clientesRes.data.data);
         setAnimales(animalesRes.data.data);
       } catch (err) {
         setError('Error al cargar datos de clientes o animales.');
+      } finally{
+        setLoading(false);
       }
     };
-
+    
     fetchData();
   }, [authData]); // solo se ejecuta cuando authData cambia
+  
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        window.location.reload(); // Recarga la página después de 3 segundos
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  
   const handleInputChange = (e) => {
     const { id, value } = e.target;
 
